@@ -187,14 +187,14 @@ class TableTools {
 	public static function setSearch( $parameters, $array ) {
 		if( array_key_exists( 'search', $_REQUEST ) ) {
 			$search = $_REQUEST[ 'search' ];
-			$keyword = mb_strtolower( $search[ 'value' ] );
+			$keyword = $search[ 'value' ];
 			$filter = '';
 
 			if( strlen( $keyword ) > 0 ) {
 				$filter = 'filter( false ';
 				foreach( $array as $element ) {
 					$name = $element[ self::$KEY_TABLE_HEADER_NAME ];
-					$filter = $filter . "|| contains( lcase( str( ?$name ) ), \"$keyword\" )";
+					$filter = $filter . "|| contains( lcase( str( ?$name ) ), lcase( \"$keyword\" ) )";
 				}
 				$filter = $filter . ') .';
 			}
