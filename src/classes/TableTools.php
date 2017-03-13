@@ -1,13 +1,15 @@
 <?php
 
 require_once( __DIR__ . '/../conf/config.php' );
-include_once( __DIR__ . '/../libs/Skinny/Skinny.php' );
+require_once( __DIR__ . '/../libs/smarty/Smarty.class.php' );
 
 /**
  * TableTools class
  */
 class TableTools {
 	public static $KEY_TABLE              = 'table';
+	public static $KEY_TEMPLATE           = 'template';
+	public static $KEY_ID                 = 'id';
 
 	public static $KEY_TABLE_HEADER_NAME  = 'name';
 	public static $KEY_TABLE_HEADER_TITLE = 'title';
@@ -55,6 +57,12 @@ class TableTools {
 		else if( $table == 'protein' ) {
 			$array = Config::$PROTEIN_COLUMNS;
 		}
+		else if( $table == 'peptide' ) {
+			$array = Config::$PEPTIDE_COLUMNS;
+		}
+		else if( $table == 'profile' ) {
+			$array = Config::$PROFILE_COLUMNS;
+		}
 
 		return $array;
 	}
@@ -81,12 +89,19 @@ class TableTools {
 		$result = array();
 
 		$table = $_REQUEST[ self::$KEY_TABLE ];
+		$template = $_REQUEST[ self::$KEY_TEMPLATE ];
 
 		if( $table == 'protein' ) {
-			$result = self::getTableData( 'protein', Config::$PROTEIN_COLUMNS );
+			$result = self::getTableData( 'protein', Config::$PROTEIN_COLUMNS, $template );
+		}
+		else if( $table == 'peptide' ) {
+			$result = self::getTableData( 'peptide', Config::$PEPTIDE_COLUMNS, $template );
 		}
 		else if( $table == 'dataset' ) {
-			$result = self::getTableData( 'dataset', Config::$DATASET_COLUMNS );
+			$result = self::getTableData( 'dataset', Config::$DATASET_COLUMNS, $template );
+		}
+		else if( $table == 'profile' ) {
+			$result = self::getTableData( 'profile', Config::$PROFILE_COLUMNS, $template );
 		}
 
 		return $result;
@@ -95,24 +110,31 @@ class TableTools {
 	/**
 	 * gets the protein data
 	 */
-	public static function getTableData( $object, $columns ) {
+	public static function getTableData( $object, $columns, $template ) {
 		$parameters = array(
 			'columns' => 'count( distinct ?' . $object . ' ) as ?count'
 		);
 
-		$parameters = self::setFilters( $parameters );
-		$resultSet = self::executeProteinSparql( $parameters );
+		if( array_key_exists( 'id', $_REQUEST ) ) {
+			$parameters[ self::$KEY_ID ] = $_REQUEST[ self::$KEY_ID ];
+		}
+		if( array_key_exists( self::$KEY_TABLE, $_REQUEST ) ) {
+			$parameters[ self::$KEY_TABLE ] = $_REQUEST[ self::$KEY_TABLE ];
+		}
+
+		$resultSet = self::executeSparql( $parameters, $template );
 		$count = self::getCount( $resultSet );
 
 		$parameters = self::setSearch( $parameters, $columns );
+		$parameters = self::setFilters( $parameters );
 		$parameters[ $object ] = true;
-		$resultSet = self::executeProteinSparql( $parameters );
+		$resultSet = self::executeSparql( $parameters, $template );
 		$filteredCount = self::getCount( $resultSet );
 
 		$parameters[ 'columns' ] = self::getColumnsString( $object, $columns );
 		$parameters = self::setPageInfo( $parameters, $columns );
 
-		$resultSet = self::executeProteinSparql( $parameters );
+		$resultSet = self::executeSparql( $parameters, $template );
 		$data = self::getSparqlData( $columns, $resultSet );
 
 		$result = array(
@@ -130,13 +152,10 @@ class TableTools {
 	 * @param unknown $parameters
 	 * @return resut
 	 */
-	public static function executeProteinSparql( $parameters ) {
-		global $Skinny;
-
-		$query = $Skinny->SkinnyFetchHTML(
-			__DIR__ . '/../templates/sparql/proteins.sparql.tpl',
-			$parameters
-		);
+	public static function executeSparql( $parameters, $template ) {
+		$smarty = new Smarty();
+		$smarty->assign( $parameters );
+		$query = $smarty->fetch( __DIR__ . '/../templates/sparql/' . $template . '.sparql.tpl' );
 
 		$sparql = new Sparql( $query );
 		$sparql->execute();

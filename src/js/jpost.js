@@ -103,25 +103,21 @@ jPost.createSearchPage = function() {
 }
 
 // create page
-jPost.createPage = function() {
+jPost.createTopPage = function() {
 	jPost.createSearchPage();
-	jPost.createTables();
+	jPost.createTopTables();
 
 	$( 'body' ).css( 'display', 'block' );
 	$( '#search-filter-title' ).click();
 }
 
-// add checkboxes
-jPost.addCheckBoxes = function( parent, name, array, valueIndex, displayIndex ) {
-	for( var i = 0; i < array.length; i++ ) {
-		var item = array[ i ];
-		var tag = '<label class="checkbox-inline">'
-				+ '<input type="checkbox" name="' + name + '" value="'
-			+ item[ valueIndex ] + '">' + item[ displayIndex ]
-			+ '</label>';
-		parent.append( tag );
-	}
+// create
+jPost.createDatasetPage = function() {
+	jPost.createItemTable( '#profile-table', 'profile', 'dataset_items' );
+	jPost.createItemTable( '#protein-table', 'protein', 'dataset_items' );
+	jPost.createItemTable( '#peptide-table', 'peptide', 'dataset_items' );
 }
+
 
 // add options
 jPost.addOptions = function( select, array, valueIndex, displayIndex ) {
@@ -144,7 +140,7 @@ jPost.createTagSelect = function( element ) {
 }
 
 // create tables
-jPost.createTables = function() {
+jPost.createTopTables = function() {
 	jPost.createTopTable( '#dataset-table', 'dataset' );
 	jPost.createTopTable( '#protein-table', 'protein' );
 }
@@ -170,6 +166,7 @@ jPost.createTopTable = function( table, name ) {
 					pagingType: "full_numbers",
 					fnServerParams: function( data ) {
 						data.table = name;
+						data.template = 'proteins';
 						data.species = $( '#species' ).val();
 						data.tissue = $( '#tissue' ) .val();
 						data.disease = $( '#disease' ).val();
@@ -182,6 +179,37 @@ jPost.createTopTable = function( table, name ) {
 			);
 
 			jPost.tables.push( datatable );
+		}
+	);
+}
+
+// create table
+jPost.createItemTable = function( table, name, template ) {
+	$.ajax(
+		{
+			type: 'POST',
+			url: 'get_table_headers.php',
+			data: { table: name },
+			dataType: 'json'
+		}
+	).then(
+		function( data ) {
+			jPost.addTableHeader( $( table ), data );
+
+			var datatable = $( table ).DataTable(
+				{
+					pageLength: 25,
+					serverSide: true,
+					processing: true,
+					pagingType: "full_numbers",
+					fnServerParams: function( data ) {
+						data.table = name;
+						data.template = template;
+						data.id = $( '#item_id' ).val();
+					},
+					ajax: 'get_table_data.php'
+				}
+			);
 		}
 	);
 }

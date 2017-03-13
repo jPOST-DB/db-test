@@ -13,8 +13,3 @@
 <script src="js/jquery.dataTables.min.js"></script>
 <script src="js/select2.full.min.js"></script>
 <script src="js/jpost.js"></script>
-<script>
-
-$(document).ready( jPost.createPage );
-
-</script>

@@ -12,6 +12,6 @@ PREFIX : <http://rdf.jpostdb.org/entry/>
 SELECT DISTINCT ?object ?label
 WHERE {
     ?project a jpo:Project ;
-        jpo:hasDataset/jpo:hasProfile/jpo:hasSample/jpo:<% echo(item) %> ?object .
+        jpo:hasDataset/jpo:hasProfile/jpo:hasSample/jpo:{$item} ?object .
     ?object rdfs:seeAlso*/rdfs:label ?label .
 }

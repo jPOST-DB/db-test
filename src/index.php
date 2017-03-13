@@ -9,6 +9,10 @@ require_once( __DIR__ . '/conf/config.php' );
 <html>
   <head>
     <?php include( __DIR__ . '/pages/head.php' ); ?>
+
+    <script>
+    	$(document).ready( jPost.createTopPage );
+    </script>
   </head>
 
   <body>

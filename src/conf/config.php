@@ -34,6 +34,21 @@ class Config {
 		)
 	);
 
+	// peptide columns
+	public static $PEPTIDE_COLUMNS = array(
+		array(
+			'name'   => 'peptide_id',
+			'title'  => 'ID',
+			'search' => true,
+			'url'    => 'peptide.php?id='
+		),
+		array(
+			'name'   => 'peptide_label',
+			'title'  => 'Label',
+			'search' => true
+		)
+	);
+
 	// dataset columns
 	public static $DATASET_COLUMNS = array(
 		array(
@@ -43,19 +58,19 @@ class Config {
 			'url'    => 'dataset.php?id='
 		),
 		array(
-			'name'   => 'profile_label',
-			'title'  => 'Profile',
+			'name'   => 'project_id',
+			'title'  => 'Project ID',
 			'search' => true
 		),
 		array(
-			'name'   => 'ms_label',
-			'title'  => 'MS Mode',
-				'search' => true
+			'name'   => 'project_title',
+			'title'  => 'Project Title',
+			'search' => true
 		),
 		array(
-			'name'   => 'sample_label',
-			'title'  => 'Sample',
-			'search' => true
+			'name'   => 'project_date',
+			'title'  => 'Project Date',
+			'search' => false
 		),
 		array(
 			'name'   => 'rawdata_num',
@@ -76,6 +91,35 @@ class Config {
 			'name'   => 'psm_num',
 			'title'  => '#Psm',
 			'search' => false
+		)
+	);
+
+	// profile columns
+	public static $PROFILE_COLUMNS = array(
+		array(
+			'name'   => 'profile_label',
+			'title'  => 'Label',
+			'search' => true
+		),
+		array(
+			'name'   => 'enzyme',
+			'title'  => 'Enzyme / Modification',
+			'search' => true
+		),
+		array(
+			'name'   => 'fractionation',
+			'title'  => 'Fractionation',
+			'search' => true
+		),
+		array(
+			'name'   => 'ms',
+			'title'  => 'MS Mode',
+			'search' => true
+		),
+		array(
+			'name'   => 'sample',
+			'title'  => 'Sample',
+			'search' => true
 		)
 	);
 }

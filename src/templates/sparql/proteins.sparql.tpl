@@ -11,72 +11,50 @@ PREFIX tax: <http://identifiers.org/taxonomy/>
 
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
-SELECT <% echo(columns) %> WHERE {
+SELECT {$columns} WHERE {
 
-<% def(species) %>
-    VALUES ?species { <% echo(species) %> }
-<% /def %>
+{if isset( $species )}
+    VALUES ?species { {$species} }
+{/if}
 
-<% def(tissue) %>
-    VALUES ?tissue { <% echo(tissue) %> }
-<% /def %>
+{if isset( $tissue )}
+    VALUES ?tissue { {$tissue} }
+{/if}
 
-<% def(disease) %>
-    VALUES ?disease { <% echo(disease) %> }
-<% /def %>
+{if isset( $disease ) }
+    VALUES ?disease { {$disease} }
+{/if}
 
-<% def(modification) %>
-    VALUES ?modification { <% echo(modification) %> }
-<% /def %>
+{if isset( $modification )}
+    VALUES ?modification { {$modification} }
+{/if}
 
-<% def(instrument) %>
-    VALUES ?instrument { <% echo(instrument) %> }
-<% /def %>
+{if isset( $instrument ) }
+    VALUES ?instrument { {$instrument} }
+{/if}
 
-<% def(instrumentMode) %>
-    VALUES ?instrumentMode { <% echo(instrumentMode) %> }
-<% /def %>
+{if isset( $instrumentMode ) }
+    VALUES ?instrumentMode { {$instrumentMode} }
+{/if}
 
     ?dataset a jpo:Dataset ;
-<% def(dataset) %>
-<% if(dataset,==,true) %>
+{if isset($dataset) && $dataset == true}
         dct:identifier ?dataset_id ;
-<% /if %>
-<% /def %>
+{/if}
         jpo:hasProfile ?profile ;
         jpo:hasProtein ?protein .
 
     ?protein a ms:1002401 ;
-<% def(modification) %>
+{if isset( $modification)}
        	jpo:hasPeptideEvidence/jpo:hasPeptide/jpo:hasPsm/jpo:hasModification/rdf:type ?modification ;
-<% /def %>
-
-<% def(protein) %>
-<% if(protein,==,true) %>
+{/if}
         dct:identifier ?protein_id ;
         rdfs:label ?protein_label ;
-<% /if %>
-<% /def %>
-
         jpo:hasDatabaseSequence ?sequence .
 
     ?profile jpo:hasSample ?sample .
 
-<% def(dataset) %>
-<% if(dataset,==,true) %>
-    optional {
-        ?profile jpo:hasMsMode ?ms  .
-        ?ms rdfs:label ?ms_label .
-    }
-
-    optional {
-        ?profile rdfs:label ?profile_label .
-    }
-
-    optional {
-        ?sample rdfs:label ?sample_label .
-    }
-
+{if isset( $dataset ) && $dataset == true}
     optional {
         ?dataset sio:000552 ?rawdata_num_param .
         ?rawdata_num_param a jpo:NumOfRawData ;
@@ -100,50 +78,56 @@ SELECT <% echo(columns) %> WHERE {
         ?psm_num_param a jpo:NumOfPsms ;
             sio:000300 ?psm_num .
     }
-<% /if %>
-<% /def %>
 
-<% def(protein) %>
-<% if(protein,==,true) %>
-    ?sequence uniprot:mnemonic ?mnomonic .
-<% /if %>
-<% /def %>
+    optional {
+        ?project jpo:hasDataset ?dataset ;
+            dct:identifier ?project_id ;
+            dct:title ?project_title ;
+            dct:date ?project_date .
+    }
 
-<% def(species) %>
+{/if}
+
+{if isset( $protein ) && $protein == true}
+    optional {
+        ?sequence uniprot:mnemonic ?mnomonic .
+    }
+{/if}
+
+{if isset( $species )}
     ?sample jpo:species ?species .
-<% /def %>
+{/if}
 
-<% def(tissue) %>
+{if isset( $tissue )}
     ?sample jpo:tissue ?tissue .
-<% /def %>
+{/if}
 
-<% def(disease) %>
+{if isset( $disease )}
     ?sample jpo:disease ?disease .
-<% /def %>
+{/if}
 
-<% def(instrument) %>
+{if isset( $instrument )}
      ?profile jpo:hasMsMode/jpo:instrument ?instrument .
-<% /def %>
+{/if}
 
-<% def(instrumentMode) %>
+{if isset( $instrumentMode )}
      ?profile jpo:hasMsMode/jpo:instrumentMode ?instrumentMode .
-<% /def %>
+{/if}
 
-<% def(search) %>
-	<% echo(search) %>
-<% /def %>
+{if isset( $search )}
+	{$search}
+{/if}
 
 }
 
-<% def(order) %>
-    ORDER BY <% echo(order) %>
-<% /def %>
+{if isset( $order )}
+    ORDER BY {$order}
+{/if}
 
+{if isset( $limit )}
+    LIMIT {$limit}
+{/if}
 
-<% def(limit) %>
-    LIMIT <% echo(limit) %>
-<% /def %>
-
-<% def(offset) %>
-    OFFSET <% echo(offset) %>
-<% /def %>
+{if isset( $offset )}
+    OFFSET {$offset}
+{/if}

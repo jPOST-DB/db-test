@@ -59,8 +59,13 @@ class Sparql {
 		foreach( $bindings as $binding ) {
 			$array = array();
 			foreach( $headers as $header ) {
-				$element = $binding->{ $header };
-				$array[ $header ] = $element->value;
+				if( property_exists( $binding, $header ) ) {
+					$element = $binding->{ $header };
+					$array[ $header ] = $element->value;
+				}
+				else {
+					$array[ $header ] = null;
+				}
 			}
 			array_push( $this->result, $array );
 		}
