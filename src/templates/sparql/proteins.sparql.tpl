@@ -90,7 +90,11 @@ SELECT {$columns} WHERE {
 
 {if isset( $protein ) && $protein == true}
     optional {
-        ?sequence uniprot:mnemonic ?mnomonic .
+        ?sequence uniprot:mnemonic ?mnemonic .
+    }
+
+    optional {
+        ?sequence uniprot:sequence/uniprot:mass ?mass .
     }
 {/if}
 

@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 3.1.30, created on 2017-03-13 07:51:08
+/* Smarty version 3.1.30, created on 2017-03-14 00:45:59
   from "C:\Users\Satoshi\workspace\jPOST\src\templates\sparql\proteins.sparql.tpl" */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '3.1.30',
-  'unifunc' => 'content_58c6415cc43a19_46404047',
+  'unifunc' => 'content_58c72f374b5fa1_94417285',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '17ac3d0ff52bd8a5090613aea062bf06e28c7a1e' => 
     array (
       0 => 'C:\\Users\\Satoshi\\workspace\\jPOST\\src\\templates\\sparql\\proteins.sparql.tpl',
-      1 => 1489386191,
+      1 => 1489448025,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_58c6415cc43a19_46404047 (Smarty_Internal_Template $_smarty_tpl) {
+function content_58c72f374b5fa1_94417285 (Smarty_Internal_Template $_smarty_tpl) {
 ?>
 PREFIX jpo: <http://rdf.jpostdb.org/ontology/jpost.owl#>
 PREFIX ms: <http://purl.obolibrary.org/obo/MS_>
@@ -121,7 +121,11 @@ SELECT <?php echo $_smarty_tpl->tpl_vars['columns']->value;?>
 
 <?php if (isset($_smarty_tpl->tpl_vars['protein']->value) && $_smarty_tpl->tpl_vars['protein']->value == true) {?>
     optional {
-        ?sequence uniprot:mnemonic ?mnomonic .
+        ?sequence uniprot:mnemonic ?mnemonic .
+    }
+
+    optional {
+        ?sequence uniprot:sequence/uniprot:mass ?mass .
     }
 <?php }?>
 

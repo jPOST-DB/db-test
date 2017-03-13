@@ -28,9 +28,14 @@ class Config {
 			'search' => true
 		),
 		array(
-			'name'   => 'mnomonic',
-			'title'  => 'Mnomonic',
+			'name'   => 'mnemonic',
+			'title'  => 'Mnemonic',
 			'search' => true
+		),
+		array(
+			'name'   => 'mass',
+			'title'  => 'Mass',
+			'search' => false
 		)
 	);
 
@@ -47,6 +52,7 @@ class Config {
 			'title'  => 'Label',
 			'search' => true
 		)
+
 	);
 
 	// dataset columns

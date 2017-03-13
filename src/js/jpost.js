@@ -111,13 +111,19 @@ jPost.createTopPage = function() {
 	$( '#search-filter-title' ).click();
 }
 
-// create
+// create dataset page
 jPost.createDatasetPage = function() {
 	jPost.createItemTable( '#profile-table', 'profile', 'dataset_items' );
 	jPost.createItemTable( '#protein-table', 'protein', 'dataset_items' );
 	jPost.createItemTable( '#peptide-table', 'peptide', 'dataset_items' );
 }
 
+// create protein page
+jPost.createProteinPage = function() {
+	jPost.createItemTable( '#dataset-table', 'dataset', 'protein_items' );
+//	jPost.createItemTable( '#protein-table', 'protein', 'protein_items' );
+//	jPost.createItemTable( '#peptide-table', 'peptide', 'protein_items' );
+}
 
 // add options
 jPost.addOptions = function( select, array, valueIndex, displayIndex ) {

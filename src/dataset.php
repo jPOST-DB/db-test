@@ -22,7 +22,7 @@ require_once( __DIR__ . '/classes/PageTools.php' );
 
     <div id="container" class="container">
       <?php
-		PageTools::showDatasetPage();
+		PageTools::showPage( 'dataset' );
       ?>
     </div>
 

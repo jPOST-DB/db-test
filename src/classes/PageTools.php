@@ -11,9 +11,9 @@ require_once( __DIR__ . '/../libs/smarty/Smarty.class.php' );
 class PageTools {
 
 	/**
-	 * shows dataset page
+	 * shows page
 	 */
-	public static function showDatasetPage() {
+	public static function showPage( $template ) {
 		if( !array_key_exists( 'id', $_REQUEST ) ) {
 			echo Messages::$ERROR_PARAMETER_IS_NOT_SET;
 			return;
@@ -26,7 +26,7 @@ class PageTools {
 
 		$smarty = new Smarty();
 		$smarty->assign( $parameters );
-		$query = $smarty->fetch( __DIR__ . '/../templates/sparql/dataset.sparql.tpl' );
+		$query = $smarty->fetch( __DIR__ . '/../templates/sparql/' . $template . '.sparql.tpl' );
 
 		$sparql = new Sparql( $query );
 		$sparql->execute();
@@ -40,7 +40,7 @@ class PageTools {
 
 		$smarty = new Smarty();
 		$smarty->assign( $result[ 0 ] );
-		$smarty->display( __DIR__ . '/../templates/html/dataset.html.tpl' );
+		$smarty->display( __DIR__ . '/../templates/html/' . $template . '.html.tpl' );
 	}
 }
 
