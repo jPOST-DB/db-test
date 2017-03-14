@@ -60,6 +60,9 @@ class TableTools {
 		else if( $table == 'peptide' ) {
 			$array = Config::$PEPTIDE_COLUMNS;
 		}
+		else if( $table == 'peptide_position' ) {
+			$array = Config::$PEPTIDE_POSITION_COLUMNS;
+		}
 		else if( $table == 'profile' ) {
 			$array = Config::$PROFILE_COLUMNS;
 		}
@@ -96,6 +99,9 @@ class TableTools {
 		}
 		else if( $table == 'peptide' ) {
 			$result = self::getTableData( 'peptide', Config::$PEPTIDE_COLUMNS, $template );
+		}
+		else if( $table == 'peptide_position' ) {
+			$result = self::getTableData( 'peptide_position', Config::$PEPTIDE_POSITION_COLUMNS, $template );
 		}
 		else if( $table == 'dataset' ) {
 			$result = self::getTableData( 'dataset', Config::$DATASET_COLUMNS, $template );

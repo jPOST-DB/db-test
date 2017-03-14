@@ -52,7 +52,31 @@ class Config {
 			'title'  => 'Label',
 			'search' => true
 		)
+	);
 
+	// peptide position columns
+	public static $PEPTIDE_POSITION_COLUMNS = array(
+		array(
+			'name'   => 'peptide_id',
+			'title'  => 'ID',
+			'search' => true,
+			'url'    => 'peptide.php?id='
+		),
+		array(
+			'name'   => 'peptide_label',
+			'title'  => 'Label',
+			'search' => true
+		),
+		array(
+			'name'   => 'begin',
+			'title'  => 'Begin',
+			'search' => false
+		),
+		array(
+			'name'   => 'end',
+			'title'  => 'End',
+			'search' => false
+		)
 	);
 
 	// dataset columns

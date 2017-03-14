@@ -1,4 +1,4 @@
-<h2>Dataset: {$protein_id}</h2>
+<h2>Protein: {$protein_id}</h2>
 <table class="table table-striped">
   <tr>
     <th>ID</th>
@@ -24,15 +24,11 @@
 
 <ul class="nav nav-tabs">
   <li class="nav-item active"><a class="nav-link bg-primary" href="#dataset-table-tab" data-toggle="tab">Dataset</a></li>
-  <li class="nav-item"><a class="nav-link bg-primary" href="#protein-table-tab"  data-toggle="tab">Related Protein</a></li>
   <li class="nav-item"><a class="nav-link bg-primary" href="#peptide-table-tab"  data-toggle="tab">Peptide</a></li>
 </ul>
 <div class="tab-content">
   <div class="tab-pane fade in active table-panel" id="dataset-table-tab">
     <table id="dataset-table" class="display"></table>
-  </div>
-  <div class="tab-pane fade table-panel" id="protein-table-tab">
-    <table id="protein-table" class="display"></table>
   </div>
   <div class="tab-pane fade table-panel" id="peptide-table-tab">
     <table id="peptide-table" class="display"></table>

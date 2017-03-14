@@ -8,18 +8,19 @@ PREFIX doid: <http://purl.obolibrary.org/obo/DOID_>
 PREFIX uniprot: <http://purl.uniprot.org/core/>
 PREFIX unimod: <http://www.unimod.org/obo/unimod.obo#UNIMOD_>
 PREFIX tax: <http://identifiers.org/taxonomy/>
+PREFIX faldo: <http://biohackathon.org/resource/faldo#>
 
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
 SELECT {$columns} WHERE {
-    VALUES ?protein_id { "{$id}" } .
+    VALUES ?org_protein_id { "{$id}" } .
 
-    ?protein a jpo:Protein ;
-        dct:identifier ?protein_id .
+    ?org_protein a jpo:Protein ;
+        dct:identifier ?org_protein_id .
 
 
 {if $table == 'dataset'}
-    ?dataset jpo:hasProtein ?protein ;
+    ?dataset jpo:hasProtein ?org_protein ;
         dct:identifier ?dataset_id .
 
     optional {
@@ -51,6 +52,36 @@ SELECT {$columns} WHERE {
             dct:identifier ?project_id ;
             dct:title ?project_title ;
             dct:date ?project_date .
+    }
+{/if}
+
+{if $table == 'protein'}
+	?org_protein jpo:hasRelatedProtein ?protein .
+
+    ?protein a jpo:Protein ;
+        dct:identifier ?protein_id ;
+        rdfs:label ?protein_label ;
+        jpo:hasDatabaseSequence ?sequence .
+
+
+    optional {
+        ?sequence uniprot:mnemonic ?mnemonic .
+    }
+{/if}
+
+{if $table == 'peptide_position'}
+    ?org_protein jpo:hasPeptideEvidence ?peptide_position .
+
+    ?peptide_position jpo:hasPeptide ?peptide .
+
+    ?peptide dct:identifier ?peptide_id ;
+        rdfs:label ?peptide_label .
+
+    optional {
+        ?peptide_position faldo:location ?location .
+
+        ?location faldo:begin/faldo:position ?begin ;
+             faldo:end/faldo:position ?end .
     }
 {/if}
 

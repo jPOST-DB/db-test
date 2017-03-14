@@ -121,8 +121,7 @@ jPost.createDatasetPage = function() {
 // create protein page
 jPost.createProteinPage = function() {
 	jPost.createItemTable( '#dataset-table', 'dataset', 'protein_items' );
-//	jPost.createItemTable( '#protein-table', 'protein', 'protein_items' );
-//	jPost.createItemTable( '#peptide-table', 'peptide', 'protein_items' );
+	jPost.createItemTable( '#peptide-table', 'peptide_position', 'protein_items' );
 }
 
 // add options
