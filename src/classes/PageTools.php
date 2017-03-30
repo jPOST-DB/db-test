@@ -10,18 +10,20 @@ require_once( __DIR__ . '/../libs/smarty/Smarty.class.php' );
   */
 class PageTools {
 
+	public static $KEY_OBJECT = 'object';
+
 	/**
 	 * shows page
 	 */
 	public static function showPage( $template ) {
-		if( !array_key_exists( 'id', $_REQUEST ) ) {
+		if( !array_key_exists( self::$KEY_OBJECT, $_REQUEST ) ) {
 			echo Messages::$ERROR_PARAMETER_IS_NOT_SET;
 			return;
 		}
-		$id = $_REQUEST[ 'id' ];
+		$object = $_REQUEST[ self::$KEY_OBJECT ];
 
 		$parameters = array(
-			'id' => $id
+			'object' => $object
 		);
 
 		$smarty = new Smarty();

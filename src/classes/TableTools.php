@@ -7,27 +7,15 @@ require_once( __DIR__ . '/../libs/smarty/Smarty.class.php' );
  * TableTools class
  */
 class TableTools {
-	public static $KEY_TABLE              = 'table';
-	public static $KEY_TEMPLATE           = 'template';
-	public static $KEY_ID                 = 'id';
+	public static $KEY_TABLE         = 'table';
+	public static $KEY_TEMPLATE      = 'template';
+	public static $KEY_OBJECT        = 'object';
+	public static $KEY_SUFFIX        = 'suffix';
 
-	public static $KEY_TABLE_HEADER_NAME  = 'name';
-	public static $KEY_TABLE_HEADER_TITLE = 'title';
-
-	/**
-	 * gets table name headers
-	 * @param unknown $array
-	 * @return
-	 */
-	public static function getTableHeaderNames( $array ) {
-		$names = array();
-
-		foreach( $array as $element ) {
-			array_push( $names, $element[ self::$KEY_TABLE_HEADER_NAME ] );
-		}
-
-		return names;
-	}
+	public static $KEY_TABLE_NAME    = 'name';
+	public static $KEY_TABLE_TITLE   = 'title';
+	public static $KEY_TABLE_SEARCH  = 'search';
+	public static $KEY_TABLE_DISPLAY = 'display';
 
 	/**
 	 * gets the table name titles
@@ -35,10 +23,16 @@ class TableTools {
 	 * @return
 	 */
 	public static function getTableHeaderTitles( $array ) {
+		$smarty = new Smarty();
+		$smarty->assign( $_REQUEST );
+
 		$titles = array();
 
 		foreach( $array as $element ) {
-			array_push( $titles, $element[ self::$KEY_TABLE_HEADER_TITLE ] );
+			array_push(
+				$titles,
+				$smarty->fetch( 'string:' . $element[ self::$KEY_TABLE_TITLE ] )
+			);
 		}
 
 		return $titles;
@@ -48,25 +42,8 @@ class TableTools {
 	 * gets the array of table header
 	 */
 	public static function getHeadersArray() {
-		$table = $_POST[ self::$KEY_TABLE ];
-
-		$array = null;
-		if( $table == 'dataset' ) {
-			$array = Config::$DATASET_COLUMNS;
-		}
-		else if( $table == 'protein' ) {
-			$array = Config::$PROTEIN_COLUMNS;
-		}
-		else if( $table == 'peptide' ) {
-			$array = Config::$PEPTIDE_COLUMNS;
-		}
-		else if( $table == 'peptide_position' ) {
-			$array = Config::$PEPTIDE_POSITION_COLUMNS;
-		}
-		else if( $table == 'profile' ) {
-			$array = Config::$PROFILE_COLUMNS;
-		}
-
+		$table = $_REQUEST[ self::$KEY_TABLE ];
+		$array = Config::$TABLE_COLUMN_MAP[ $table ];
 		return $array;
 	}
 
@@ -89,43 +66,40 @@ class TableTools {
 	 * gets the data
 	 */
 	public static function getData() {
-		$result = array();
-
 		$table = $_REQUEST[ self::$KEY_TABLE ];
 		$template = $_REQUEST[ self::$KEY_TEMPLATE ];
 
-		if( $table == 'protein' ) {
-			$result = self::getTableData( 'protein', Config::$PROTEIN_COLUMNS, $template );
-		}
-		else if( $table == 'peptide' ) {
-			$result = self::getTableData( 'peptide', Config::$PEPTIDE_COLUMNS, $template );
-		}
-		else if( $table == 'peptide_position' ) {
-			$result = self::getTableData( 'peptide_position', Config::$PEPTIDE_POSITION_COLUMNS, $template );
-		}
-		else if( $table == 'dataset' ) {
-			$result = self::getTableData( 'dataset', Config::$DATASET_COLUMNS, $template );
-		}
-		else if( $table == 'profile' ) {
-			$result = self::getTableData( 'profile', Config::$PROFILE_COLUMNS, $template );
-		}
+		$result = self::getTableData( $table, Config::$TABLE_COLUMN_MAP[ $table ], $template );
 
 		return $result;
 	}
 
 	/**
-	 * gets the protein data
+	 * gets table data
 	 */
 	public static function getTableData( $object, $columns, $template ) {
 		$parameters = array(
 			'columns' => 'count( distinct ?' . $object . ' ) as ?count'
 		);
 
-		if( array_key_exists( 'id', $_REQUEST ) ) {
-			$parameters[ self::$KEY_ID ] = $_REQUEST[ self::$KEY_ID ];
+		if( array_key_exists( 'object', $_REQUEST ) ) {
+			$parameters[ self::$KEY_OBJECT ] = $_REQUEST[ self::$KEY_OBJECT ];
 		}
 		if( array_key_exists( self::$KEY_TABLE, $_REQUEST ) ) {
 			$parameters[ self::$KEY_TABLE ] = $_REQUEST[ self::$KEY_TABLE ];
+		}
+		if( array_key_exists( 'objects', $_REQUEST ) ) {
+			$objects = json_decode( $_REQUEST[ 'objects' ] );
+			if( $objects == null ) {
+				$objects = array();
+			}
+			$parameters[ 'objects' ] = self::getUrlValuesString( $objects );
+		}
+		if( array_key_exists( 'minus', $_REQUEST ) ) {
+			$minus = json_decode( $_REQUEST[ 'minus' ] );
+			if( $minus != null && count( $minus ) > 0 ) {
+				$parameters[ 'minus' ] = $minus;
+			}
 		}
 
 		$resultSet = self::executeSparql( $parameters, $template );
@@ -133,7 +107,6 @@ class TableTools {
 
 		$parameters = self::setSearch( $parameters, $columns );
 		$parameters = self::setFilters( $parameters );
-		$parameters[ $object ] = true;
 		$resultSet = self::executeSparql( $parameters, $template );
 		$filteredCount = self::getCount( $resultSet );
 
@@ -218,8 +191,15 @@ class TableTools {
 			if( strlen( $keyword ) > 0 ) {
 				$filter = 'filter( false ';
 				foreach( $array as $element ) {
-					$name = $element[ self::$KEY_TABLE_HEADER_NAME ];
-					$filter = $filter . "|| contains( lcase( str( ?$name ) ), lcase( \"$keyword\" ) )";
+					$flag = false;
+					if( array_key_exists( self::$KEY_TABLE_SEARCH, $element) ) {
+						$flag = $element[ self::$KEY_TABLE_SEARCH ];
+					}
+
+					if( $flag ) {
+						$name = $element[ self::$KEY_TABLE_NAME ];
+						$filter = $filter . "|| contains( lcase( str( ?$name ) ), lcase( \"$keyword\" ) )";
+					}
 				}
 				$filter = $filter . ') .';
 			}
@@ -247,7 +227,7 @@ class TableTools {
 			$dir = $order[ 'dir' ];
 
 			$parameters[ 'order' ] = $dir . '( ?'
-								. $array[ $index ][ self::$KEY_TABLE_HEADER_NAME ]
+								. $array[ $index ][ self::$KEY_TABLE_NAME ]
 								. ' )';
 		}
 
@@ -281,7 +261,9 @@ class TableTools {
 		$string = 'distinct ?' . $object;
 
 		foreach( $columns as $column ) {
-			$string = $string . ' ?' . $column[ self::$KEY_TABLE_HEADER_NAME ];
+			if( array_key_exists( self::$KEY_TABLE_NAME, $column ) ) {
+				$string = $string . ' ?' . $column[ self::$KEY_TABLE_NAME ];
+			}
 		}
 
 		return $string;
@@ -294,17 +276,16 @@ class TableTools {
 	 */
 	public static function getSparqlData( $columns, $result ) {
 		$array = array();
+		$smarty = new Smarty();
 
 		foreach( $result as $record ) {
 			$element = array();
 
-			foreach( $columns as $column ) {
-				$value = $record[ $column[ self::$KEY_TABLE_HEADER_NAME ] ];
-				if( array_key_exists( 'url', $column ) ) {
-					$url = $column[ 'url' ];
-					$value = '<a href="' . $url . $value . '" target="_blank">' . $value . '</a>';
-				}
+			$record[ 'suffix' ] = $_REQUEST[ self::$KEY_SUFFIX ];
+			$smarty->assign( $record );
 
+			foreach( $columns as $column ) {
+				$value = $smarty->fetch( 'string:' . $column[ self::$KEY_TABLE_DISPLAY ] );
 				array_push( $element, $value );
 			}
 
@@ -313,8 +294,6 @@ class TableTools {
 
 		return $array;
 	}
-
 }
 
 ?>
-

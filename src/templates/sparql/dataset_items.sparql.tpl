@@ -12,7 +12,7 @@ PREFIX tax: <http://identifiers.org/taxonomy/>
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
 SELECT {$columns} WHERE {
-	VALUES ?dataset_id { "{$id}" } .
+	VALUES ?dataset { <{$object}> } .
 
     ?dataset a jpo:Dataset ;
         dct:identifier ?dataset_id .
@@ -40,15 +40,23 @@ SELECT {$columns} WHERE {
 {/if}
 
 {if $table == 'protein'}
-    ?dataset jpo:hasProtein ?protein .
+    ?dataset jpo:hasProtein ?dataset_protein .
 
-    ?protein dct:identifier ?protein_id ;
+    ?dataset_protein dct:identifier ?protein_id ;
         rdfs:label ?protein_label ;
-        jpo:hasDatabaseSequence ?sequence .
+        jpo:hasDatabaseSequence ?protein .
+
+    ?protein uniprot:recommendedName/uniprot:shortName ?short_name ;
+   	    uniprot:recommendedName/uniprot:fullName ?full_name .
 
     optional {
-        ?sequence uniprot:mnemonic ?mnomonic .
+        ?protein uniprot:mnemonic ?mnemonic .
     }
+
+    optional {
+        ?protein uniprot:sequence/uniprot:mass ?mass .
+    }
+
 {/if}
 
 {if $table == 'peptide'}

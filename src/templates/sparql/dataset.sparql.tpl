@@ -11,9 +11,9 @@ PREFIX tax: <http://identifiers.org/taxonomy/>
 
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
-SELECT ?dataset_id ?project_id ?project_title ?project_desc ?project_date ?rawdata_num ?protein_num ?peptide_num ?psm_num WHERE {
+SELECT ?dataset ?dataset_id ?project_id ?project_title ?project_desc ?project_date ?rawdata_num ?protein_num ?peptide_num ?psm_num WHERE {
 
-    VALUES ?dataset_id { "{$id}" }
+    VALUES ?dataset { <{$object}> }
 
     ?dataset a jpo:Dataset ;
         dct:identifier ?dataset_id ;

@@ -1,12 +1,8 @@
-<h2>Protein: {$protein_id}</h2>
+<h2>Protein: {$mnemonic}</h2>
 <table class="table table-striped">
   <tr>
-    <th>ID</th>
-    <td>{$protein_id}</td>
-  </tr>
-  <tr>
-    <th>Label</th>
-    <td>{$protein_label}</td>
+    <th>Full Name</th>
+    <td>{$full_name}</td>
   </tr>
   <tr>
     <th>Mnemonic</th>
@@ -36,5 +32,5 @@
 </div>
 
 <form>
-    <input type="hidden" value="{$protein_id}" id="item_id">
+    <input type="hidden" value="{$protein}" id="item_object">
 </form>

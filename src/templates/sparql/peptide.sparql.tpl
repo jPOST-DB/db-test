@@ -11,19 +11,14 @@ PREFIX tax: <http://identifiers.org/taxonomy/>
 
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
-SELECT ?protein ?protein_id ?protein_label ?mnemonic ?value ?mass ?full_name WHERE {
-    VALUES ?protein { <{$object}> } .
+SELECT distinct ?peptide ?peptide_id ?peptide_label ?protein ?full_name WHERE {
+    VALUES ?peptide { <{$object}> } .
 
-	?protein uniprot:recommendedName/uniprot:fullName ?full_name .
+     ?peptide dct:identifier ?peptide_id ;
+        rdfs:label ?peptide_label .
 
-    optional {
-        ?protein uniprot:mnemonic ?mnemonic .
-    }
+    ?dataset_protein jpo:hasPeptideEvidence/jpo:hasPeptide ?peptide ;
+        jpo:hasDatabaseSequence ?protein .
 
-    optional {
-        ?protein uniprot:sequence/rdf:value ?value .
-    }
-    optional {
-        ?protein uniprot:sequence/uniprot:mass ?mass .
-    }
+    ?protein uniprot:recommendedName/uniprot:fullName ?full_name .
 }

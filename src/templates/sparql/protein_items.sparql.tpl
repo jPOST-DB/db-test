@@ -13,14 +13,12 @@ PREFIX faldo: <http://biohackathon.org/resource/faldo#>
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
 SELECT {$columns} WHERE {
-    VALUES ?org_protein_id { "{$id}" } .
+    VALUES ?protein { <{$object}> } .
 
-    ?org_protein a jpo:Protein ;
-        dct:identifier ?org_protein_id .
-
+    ?dataset_protein jpo:hasDatabaseSequence ?protein .
 
 {if $table == 'dataset'}
-    ?dataset jpo:hasProtein ?org_protein ;
+    ?dataset jpo:hasProtein ?dataset_protein ;
         dct:identifier ?dataset_id .
 
     optional {
@@ -55,22 +53,9 @@ SELECT {$columns} WHERE {
     }
 {/if}
 
-{if $table == 'protein'}
-	?org_protein jpo:hasRelatedProtein ?protein .
-
-    ?protein a jpo:Protein ;
-        dct:identifier ?protein_id ;
-        rdfs:label ?protein_label ;
-        jpo:hasDatabaseSequence ?sequence .
-
-
-    optional {
-        ?sequence uniprot:mnemonic ?mnemonic .
-    }
-{/if}
 
 {if $table == 'peptide_position'}
-    ?org_protein jpo:hasPeptideEvidence ?peptide_position .
+    ?dataset_protein jpo:hasPeptideEvidence ?peptide_position .
 
     ?peptide_position jpo:hasPeptide ?peptide .
 

@@ -13,143 +13,209 @@ class Config {
 	// endpoint
 	public static $SPARQL_ENDPOINT = 'http://db-dev.jpostdb.org/sparql2/';
 
+	// table columns
+	public static $TABLE_COLUMN_MAP = array(
+		'protein' => array(
+			array(
+				'title'   => '<input type="checkbox" id="protein_check{$suffix}" onchange="jPost.toggleCheckboxes(\'protein_check{$suffix}\')">',
+				'display' => '<input type="checkbox" class="protein_check{$suffix}" name="protein[]" value="{$protein}">'
+			),
+			array(
+				'title'   => 'Full Name',
+				'display' => '<a href="protein.php?object={$protein|escape:"url"}" target="jpost">{$full_name}</a>',
+				'name'    => 'full_name',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Mnemonic',
+				'display' => '{$mnemonic}',
+				'name'    => 'mnemonic',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Mass',
+				'display' => '{$mass}',
+				'name'    => 'mass'
+			)
+		),
 
-	// protein columns
-	public static $PROTEIN_COLUMNS = array(
-		array(
-			'name'   => 'protein_id',
-			'title'  => 'ID',
-			'search' => true,
-			'url'    => 'protein.php?id='
+		'peptide' => array(
+			array(
+				'title'   => '<input type="checkbox" id="peptide_check{$suffix}" onchange="jPost.toggleCheckboxes(\'peptide_check{$suffix}\')">',
+				'display' => '<input type="checkbox" class="peptide_check{$suffix}" name="peptide[]" value="{$peptide}">'
+			),
+			array(
+				'title'   => 'ID',
+				'display' => '<a href="peptide.php?object={$peptide|escape:"url"}" target="jpost">{$peptide_id}</a>',
+				'name'    => 'peptide_id',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Label',
+				'display' => '{$peptide_label}',
+				'name'    => 'peptide_label',
+				'search'  => true
+			)
 		),
-		array(
-			'name'   => 'protein_label',
-			'title'  => 'Label',
-			'search' => true
-		),
-		array(
-			'name'   => 'mnemonic',
-			'title'  => 'Mnemonic',
-			'search' => true
-		),
-		array(
-			'name'   => 'mass',
-			'title'  => 'Mass',
-			'search' => false
-		)
-	);
 
-	// peptide columns
-	public static $PEPTIDE_COLUMNS = array(
-		array(
-			'name'   => 'peptide_id',
-			'title'  => 'ID',
-			'search' => true,
-			'url'    => 'peptide.php?id='
+		'peptide_position' => array(
+			array(
+				'title'   => '<input type="checkbox" id="peptide_check{$suffix}" onchange="jPost.toggleCheckboxes(\'peptide_check{$suffix}\')">',
+				'display' => '<input type="checkbox" class="peptide_check{$suffix}" name="peptide[]" value="{$peptide}">',
+				'name'    => 'peptide'
+			),
+			array(
+				'title'   => 'ID',
+				'display' => '<a href="peptide.php?object={$peptide|escape:"url"}" target="jpost">{$peptide_id}</a>',
+				'name'    => 'peptide_id',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Label',
+				'display' => '{$peptide_label}',
+				'name'    => 'peptide_label',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Begin',
+				'display' => '{$begin}',
+				'name'    => 'begin'
+			),
+			array(
+				'title'   => 'End',
+				'display' => '{$end}',
+				'name'    => 'end'
+			)
 		),
-		array(
-			'name'   => 'peptide_label',
-			'title'  => 'Label',
-			'search' => true
-		)
-	);
 
-	// peptide position columns
-	public static $PEPTIDE_POSITION_COLUMNS = array(
-		array(
-			'name'   => 'peptide_id',
-			'title'  => 'ID',
-			'search' => true,
-			'url'    => 'peptide.php?id='
+		'dataset' => array(
+			array(
+				'title'   => '<input type="checkbox" id="dataset_check{$suffix}" onchange="jPost.toggleCheckboxes(\'dataset_check{$suffix}\')">',
+				'display' => '<input type="checkbox" class="dataset_check{$suffix}" name="peptide[]" value="{$dataset}">'
+			),
+			array(
+				'title'   => 'ID',
+				'display' => '<a href="dataset.php?object={$dataset|escape:"url"}" target="jpost">{$dataset_id}</a>',
+				'name'    => 'dataset_id',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Project ID',
+				'display' => '{$project_id}',
+				'name'    => 'project_id',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Project Title',
+				'display' => '{$project_title}',
+				'name'    => 'project_title',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Project Date',
+				'display' => '{$project_date}',
+				'name'    => 'project_date'
+			),
+			array(
+				'title'   => '#RawData',
+				'display' => '{$rawdata_num}',
+				'name'    => 'rawdata_num'
+			),
+			array(
+				'title'   => '#Protein',
+				'display' => '{$protein_num}',
+				'name'    => 'protein_num'
+			),
+			array(
+				'title'   => '#Peptide',
+				'display' => '{$peptide_num}',
+				'name'    => 'peptide_num'
+			),
+			array(
+				'title'   => '#Psm',
+				'display' => '{$psm_num}',
+				'name'    => 'psm_num'
+			)
 		),
-		array(
-			'name'   => 'peptide_label',
-			'title'  => 'Label',
-			'search' => true
-		),
-		array(
-			'name'   => 'begin',
-			'title'  => 'Begin',
-			'search' => false
-		),
-		array(
-			'name'   => 'end',
-			'title'  => 'End',
-			'search' => false
-		)
-	);
 
-	// dataset columns
-	public static $DATASET_COLUMNS = array(
-		array(
-			'name'   => 'dataset_id',
-			'title'  => 'ID',
-			'search' => true,
-			'url'    => 'dataset.php?id='
+		'profile' => array(
+			array(
+				'title'   => '<input type="checkbox" id="profile_check{$suffix}" onchange="jPost.toggleCheckboxes(\'profile_check{$suffix}\')">',
+				'display' => '<input type="checkbox" class="profile_check" name="profile[]" value="{$profile}">'
+			),
+			array(
+				'title'   => 'Label',
+				'display' => '{$profile_label}',
+				'name'    => 'profile_label',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Enzyme / Modification',
+				'display' => '{$enzyme}',
+				'name'    => 'enzyme',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Fractionation',
+				'display' => '{$fractionation}',
+				'name'    => 'fractionation',
+				'search'  => true
+			),
+			array(
+				'title'   => 'MS Mode',
+				'display' => '{$ms}',
+				'name'    => 'ms',
+				'search'  => true
+			),
+			array(
+				'title'   => 'Sample',
+				'display' => '{$sample}',
+				'name'    => 'sample',
+				'search'  => true
+			)
 		),
-		array(
-			'name'   => 'project_id',
-			'title'  => 'Project ID',
-			'search' => true
-		),
-		array(
-			'name'   => 'project_title',
-			'title'  => 'Project Title',
-			'search' => true
-		),
-		array(
-			'name'   => 'project_date',
-			'title'  => 'Project Date',
-			'search' => false
-		),
-		array(
-			'name'   => 'rawdata_num',
-			'title'  => '#RawData',
-			'search' => false
-		),
-		array(
-			'name'   => 'protein_num',
-			'title'  => '#Protein',
-			'search' => false
-		),
-		array(
-			'name'   => 'peptide_num',
-			'title'  => '#Peptide',
-			'search' => false
-		),
-		array(
-			'name'   => 'psm_num',
-			'title'  => '#Psm',
-			'search' => false
-		)
-	);
 
-	// profile columns
-	public static $PROFILE_COLUMNS = array(
-		array(
-			'name'   => 'profile_label',
-			'title'  => 'Label',
-			'search' => true
-		),
-		array(
-			'name'   => 'enzyme',
-			'title'  => 'Enzyme / Modification',
-			'search' => true
-		),
-		array(
-			'name'   => 'fractionation',
-			'title'  => 'Fractionation',
-			'search' => true
-		),
-		array(
-			'name'   => 'ms',
-			'title'  => 'MS Mode',
-			'search' => true
-		),
-		array(
-			'name'   => 'sample',
-			'title'  => 'Sample',
-			'search' => true
+		'psm' => array(
+			array(
+				'title'   => '<input type="checkbox" id="psm_check{$suffix}" onchange="jPost.toggleCheckboxes(\'psm_check{$suffix}\')">',
+				'display' => '<input type="checkbox" class="psm_check" name="psm[]" value="{$psm}">'
+			),
+			array(
+				'title'   => 'Mascot Expected Value',
+				'display' => '{$mascot_expected_value}',
+				'name'    => 'mascot_expected_value',
+				'search'  => false
+			),
+			array(
+				'title'   => 'Mascot Score',
+				'display' => '{$mascot_score}',
+				'name'    => 'mascot_score',
+				'search'  => false
+			),
+			array(
+				'title'   => 'jPOST Expected Value',
+				'display' => '{$jpost_expected_value}',
+				'name'    => 'jpost_expected_value',
+				'search'  => false
+			),
+			array(
+				'title'   => 'Charge',
+				'display' => '{$charge}',
+				'name'    => 'charge',
+				'search'  => false
+			),
+			array(
+				'title'   => 'Calculated Mass',
+				'display' => '{$calculated_mass}',
+				'name'    => 'calculated_mass',
+				'search'  => false
+			),
+			array(
+				'title'   => 'Experimental Mass',
+				'display' => '{$experimental_mass}',
+				'name'    => 'experimental_mass',
+				'search'  => false
+			)
 		)
 	);
 }

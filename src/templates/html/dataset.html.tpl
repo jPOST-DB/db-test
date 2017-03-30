@@ -56,5 +56,5 @@
 </div>
 
 <form>
-    <input type="hidden" value="{$dataset_id}" id="item_id">
+    <input type="hidden" value="{$dataset}" id="item_object">
 </form>

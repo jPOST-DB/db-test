@@ -37,66 +37,32 @@ SELECT {$columns} WHERE {
     VALUES ?instrumentMode { {$instrumentMode} }
 {/if}
 
-    ?dataset a jpo:Dataset ;
-{if isset($dataset) && $dataset == true}
-        dct:identifier ?dataset_id ;
+{if isset( $objects ) }
+    VALUES ?protein { {$objects} }
 {/if}
-        jpo:hasProfile ?profile ;
-        jpo:hasProtein ?protein .
 
-    ?protein a ms:1002401 ;
+    ?dataset a jpo:Dataset ;
+        jpo:hasProfile ?profile ;
+        jpo:hasProtein ?dataset_protein .
+
+    ?dataset_protein a ms:1002401 ;
 {if isset( $modification)}
        	jpo:hasPeptideEvidence/jpo:hasPeptide/jpo:hasPsm/jpo:hasModification/rdf:type ?modification ;
 {/if}
-        dct:identifier ?protein_id ;
-        rdfs:label ?protein_label ;
-        jpo:hasDatabaseSequence ?sequence .
+        jpo:hasDatabaseSequence ?protein .
 
     ?profile jpo:hasSample ?sample .
 
-{if isset( $dataset ) && $dataset == true}
+   	?protein uniprot:recommendedName/uniprot:shortName ?short_name ;
+   	    uniprot:recommendedName/uniprot:fullName ?full_name .
+
     optional {
-        ?dataset sio:000552 ?rawdata_num_param .
-        ?rawdata_num_param a jpo:NumOfRawData ;
-            sio:000300 ?rawdata_num .
+        ?protein uniprot:mnemonic ?mnemonic .
     }
 
     optional {
-        ?dataset sio:000552 ?protein_num_param .
-        ?protein_num_param a jpo:NumOfProteins ;
-            sio:000300 ?protein_num .
+        ?protein uniprot:sequence/uniprot:mass ?mass .
     }
-
-    optional {
-        ?dataset sio:000552 ?peptide_num_param .
-        ?peptide_num_param a jpo:NumOfPeptides ;
-            sio:000300 ?peptide_num .
-    }
-
-    optional {
-        ?dataset sio:000552 ?psm_num_param .
-        ?psm_num_param a jpo:NumOfPsms ;
-            sio:000300 ?psm_num .
-    }
-
-    optional {
-        ?project jpo:hasDataset ?dataset ;
-            dct:identifier ?project_id ;
-            dct:title ?project_title ;
-            dct:date ?project_date .
-    }
-
-{/if}
-
-{if isset( $protein ) && $protein == true}
-    optional {
-        ?sequence uniprot:mnemonic ?mnemonic .
-    }
-
-    optional {
-        ?sequence uniprot:sequence/uniprot:mass ?mass .
-    }
-{/if}
 
 {if isset( $species )}
     ?sample jpo:species ?species .
@@ -120,6 +86,12 @@ SELECT {$columns} WHERE {
 
 {if isset( $search )}
 	{$search}
+{/if}
+
+{if isset( $minus )}
+    {foreach $minus as $except}
+        filter( ?protein != <{$except}> )
+    {/foreach}
 {/if}
 
 }
