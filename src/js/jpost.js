@@ -637,7 +637,7 @@ jPost.compareSlices = function() {
 		return;
 	}
 
-	var tag = '<togostanza-group_comp method="sc" valud="eb "'
+	var tag = '<togostanza-group_comp method="sc" valid="eb" '
 		    + 'dataset1="' + slice1.datasets.join( ' ' ) + '" '
 		    + 'dataset2="' + slice2.datasets.join( ' ' ) + '"></togostanza-group_comp>';
 
