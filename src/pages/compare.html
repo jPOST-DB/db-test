@@ -1,0 +1,29 @@
+<div class="panel panel-primary">
+  <div class="panel-header">
+    <h2>Slice Comparison</h2>
+  </div>
+  <div class="panel-body">
+    <form id="slice-comparison">
+      <div class="form-group">
+        <label>Slice 1</label>
+        <select id="select-comparison-slice1" name="slice1" class="form-control select-slice">
+          <option value="">( Select a slice. )</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="col-2">Slice 2</label>
+        <select id="select-comparison-slice2" name="slice2" class="form-control select-slice">
+          <option value="">( Select a clice. )</option>
+        </select>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="comparison-result">
+</div>
+
+<script>
+    $( '#select-comparison-slice1' ).change( jPost.compareSlices );
+    $( '#select-comparison-slice2' ).change( jPost.compareSlices );
+</script>

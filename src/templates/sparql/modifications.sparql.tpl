@@ -7,17 +7,13 @@ PREFIX bto: <http://purl.obolibrary.org/obo/BTO_>
 PREFIX doid: <http://purl.obolibrary.org/obo/DOID_>
 PREFIX unimod: <http://www.unimod.org/obo/unimod.obo#UNIMOD_>
 PREFIX tax: <http://identifiers.org/taxonomy/>
+PREFIX owl: <http://www.geneontology.org/formats/oboInOwl#>
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
-SELECT DISTINCT ?object ?label
+SELECT DISTINCT ?label
 WHERE {
-    {
-        ?s a jpo:Project ;
-            jpo:modification ?object .
-    }UNION{
-        ?s a jpo:PeptideSpectrumMatch ;
-            jpo:hasModification/rdf:type ?object .
-        FILTER (?object != jpo:Modification)
-    }
-    ?object rdfs:label ?label .
+	?psm a jpo:PeptideSpectrumMatch ;
+	   jpo:hasModification/rdf:type ?modification .
+    ?modification rdfs:subClassOf unimod:0 ;
+        rdfs:label ?label .
 }

@@ -15,12 +15,15 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
 
-SELECT ?dataset WHERE {
+SELECT {$columns} WHERE {
+{if strpos($columns, "dataset") != false}
     ?dataset a jpo:Dataset ;
         dct:identifier ?dataset_id .
-
-{if isset( $datasets )}
-    filter( str( ?dataset_id ) in ( {$datasets} ) ).
 {/if}
 
+{if strpos($columns, "mnemonic") != false}
+    ?dataprotein a jpo:Protein ;
+        jpo:hasDatabaseSequence ?protein .
+    ?protein uniprot:mnemonic ?mnemonic .
+{/if}
 }

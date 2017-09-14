@@ -5,16 +5,62 @@ var jPost = {};
 
 
 // variables
-jPost.waiting = false;
 jPost.tables = [];
+jPost.slices = [];
+jPost.slice = null;
+jPost.datasets = null;
 
-// constant values
-jPost.KEY_PICKED_UP_PROTEINS = 'jPost-PickedUpProteins';
-jPost.KEY_EXCEPTED_PROTEINS  = 'jPost-ExceptedProteins';
-jPost.KEY_PICKED_UP_DATASETS = 'jPost-PickedUpDatasets';
-jPost.KEY_EXCEPTED_DATASETS  = 'jPost-ExceptedDatasets';
+//create page
+jPost.createPage = function() {
+	$.ajax(
+		{
+			url: 'information.php',
+			data: {
+				type: 'panels'
+			},
+			dataType: 'json'
 
-// call sparql
+		}
+	).then(
+		function( data ) {
+			jPost.createPanels( data );
+		}
+	);
+}
+
+// create panels
+jPost.createPanels = function( data ) {
+	data.forEach(
+		jPost.addPanel
+	);
+
+	if( data.length > 0 ) {
+		var firstPanel = data[ 0 ];
+		jPost.showPanel( firstPanel.name );
+	}
+}
+
+// add panel
+jPost.addPanel = function( panel ) {
+	var tag = '<li id="menu-item-' + panel.name + '" class="menu-item"><a href="javascript:jPost.showPanel( '
+			+ "'" + panel.name + "'" + ' )">' + panel.title + '</a></li>';
+	$( '#header-menu' ).append( tag );
+
+	tag = '<div id="panel-' + panel.name + '" class="top-panel" style="display: none;"></div>';
+	$( '#panels' ).append( tag );
+
+	$( '#panel-' + panel.name ).load( 'pages/' + panel.name + '.html' );
+}
+
+// show panel
+jPost.showPanel = function( panel ) {
+	$( '.top-panel' ).css( 'display', 'none' );
+	$( '.menu-item' ).removeClass( 'active' );
+	$( '#panel-' + panel ).css( 'display', 'block' );
+	$( '#menu-item-' + panel ).addClass( 'active' );
+}
+
+//call sparql
 jPost.callSparql = function( data, fun ) {
 	$.ajax(
 		{
@@ -26,86 +72,579 @@ jPost.callSparql = function( data, fun ) {
 	).then( fun );
 }
 
+// set tag select
+jPost.setTagSelect = function( select, url, data, valueIndex, displayIndex ) {
+	if( data == null ) {
+		data = {};
+	}
+
+	select.css( 'display', 'inline' );
+	select.select2(
+		{
+			ajax: {
+				url: url,
+				dataType: 'json',
+				delay: 50,
+				data: function( params ) {
+					data.term = params;
+
+					return data;
+				},
+				processResults: function( result, params ) {
+					var array = [];
+					result.result.forEach(
+						function( element ) {
+							array.push(
+								{
+									id: element[ valueIndex ],
+									text: element[ displayIndex ]
+								}
+							);
+						}
+					);
+					return { results: array };
+				}
+			},
+			tags: true
+		}
+	);
+}
+
+
+//add options
+jPost.addOptions = function( select, array, valueIndex, displayIndex ) {
+	for( var i = 0; i < array.length; i++ ) {
+		var item = array[ i ];
+		var tag = '<option value="' + item[ valueIndex ] + '">'
+				+ item[ displayIndex ] + '</option>'
+		select.append( tag );
+	}
+}
+
+// create tag select
+jPost.createTagSelect = function( element ) {
+	element.css( 'display', 'inline' );
+	element.select2(
+		{
+			tags: true
+		}
+	);
+}
 
 // create search page
 jPost.createSearchPage = function() {
-	jPost.callSparql(
+	jPost.setTagSelect(
+		$( '#species' ),
+		'execute_sparql.php',
 		{
 			item: 'species',
 			template: 'items'
 		},
-		function( result ) {
-			var items = result.result;
-			jPost.addOptions( $( '#species' ), items, 'object', 'label' );
-			jPost.createTagSelect( $( '#species' ) );
+		'label',
+		'label'
+	);
+	$( '#species' ).change(
+		function() {
+			jPost.updateTables( '' );
 		}
 	);
-	$( '#species' ).change( jPost.updateTables );
 
-	jPost.callSparql(
+	jPost.setTagSelect(
+		$( '#tissue'),
+		'execute_sparql.php',
 		{
 			item: 'tissue',
 			template: 'items'
 		},
-		function( result ) {
-			var items = result.result;
-			jPost.addOptions( $( '#tissue' ), items, 'object', 'label' );
-			jPost.createTagSelect( $( '#tissue' ) );
+		'label',
+		'label'
+	);
+	$( '#tissue' ).change(
+		function() {
+			jPost.updateTables( '' );
 		}
 	);
-	$( '#tissue' ).change( jPost.updateTables );
 
-	jPost.callSparql(
+	jPost.setTagSelect(
+		$( '#disease'),
+		'execute_sparql.php',
 		{
 			item: 'disease',
 			template: 'items'
 		},
-		function(result) {
-			var items = result.result;
-			jPost.addOptions( $( '#disease' ), items, 'object', 'label' );
-			jPost.createTagSelect( $( '#disease' ) );
+		'label',
+		'label'
+	);
+	$( '#disease' ).change(
+		function() {
+			jPost.updateTables( '' );
 		}
 	);
-	$( '#disease' ).change( jPost.updateTables );
 
-	jPost.callSparql(
+	jPost.setTagSelect(
+		$( '#celltype' ),
+		'execute_sparql.php',
+		{
+			item: 'cellType',
+			template: 'items'
+		},
+		'label',
+		'label'
+	);
+	$( '#celltype' ).change(
+		function() {
+			jPost.updateTables( '' );
+		}
+	);
+
+	jPost.setTagSelect(
+		$( '#modification'),
+		'execute_sparql.php',
 		{
 			template: 'modifications'
 		},
-		function(result) {
-			var items = result.result;
-			jPost.addOptions( $( '#modification' ), items, 'object', 'label' );
-			jPost.createTagSelect( $( '#modification' ) );
+		'label',
+		'label'
+	);
+	$( '#modification' ).change(
+		function() {
+			jPost.updateTables( '' );
 		}
 	);
-	$( '#modification' ).change( jPost.updateTables );
 
-	jPost.callSparql(
+	jPost.setTagSelect(
+		$( '#instrument'),
+		'execute_sparql.php',
 		{
 			item: 'instrument',
 			template: 'instruments'
 		},
-		function(result) {
-			var items = result.result;
-			jPost.addOptions( $( '#instrument' ), items, 'object', 'label' );
-			jPost.createTagSelect( $( '#instrument' ) );
+		'label',
+		'label'
+	);
+	$( '#instrument' ).change(
+		function() {
+			jPost.updateTables( '' );
 		}
 	);
-	$( '#instrument' ).change( jPost.updateTables );
 
-	jPost.callSparql(
+	jPost.setTagSelect(
+		$( '#instrumentMode'),
+		'execute_sparql.php',
 		{
 			item: 'instrumentMode',
 			template: 'instruments'
 		},
-		function(result) {
-			var items = result.result;
-			jPost.addOptions( $( '#instrumentMode' ), items, 'object', 'label' );
-			jPost.createTagSelect( $( '#instrumentMode' ) );
+		'label',
+		'label'
+	);
+	$( '#instrumentMode' ).change(
+		function() {
+			jPost.updateTables( '' );
 		}
 	);
-	$( '#instrumentMode' ).change( jPost.updateTables );
+
+	jPost.setTagSelect(
+		$( '#excludedDatasets' ),
+		'execute_sparql.php',
+		{
+			columns: 'distinct ?dataset_id',
+			template: 'exclusion'
+		},
+		'dataset_id',
+		'dataset_id'
+	);
+	$( '#excludedProteins' ).change(
+		function() {
+			jPost.updateTables( '' );
+		}
+	);
+
+	jPost.setTagSelect(
+		$( '#excludedProteins' ),
+		'execute_sparql.php',
+		{
+			columns: 'distinct ?mnemonic',
+			template: 'exclusion'
+		},
+		'mnemonic',
+		'mnemonic'
+	);
+	$( '#exceptedProteins' ).change(
+		function() {
+			jPost.updateTables( '' );
+		}
+	);
 }
+
+// create table
+jPost.createDbTable = function( name, category, url, fnParams ) {
+	$.ajax(
+		{
+			url: url,
+			data: {
+				method: 'table',
+				name: name,
+				category: category
+			},
+			dataType: 'json'
+		}
+	).then(
+		function( data ) {
+			var tag = '<thead><tr id="table-headers1-' + name + '"></tr></thead>';
+			$( '#table-' + name ).append( tag );
+			var order = -1;
+			columns = [];
+			var totalWidth = 0;
+
+			data.columns.forEach(
+				function( column, index ) {
+					var tag = '<th>' + column.title + '</th>';
+					$( '#table-headers1-' + name ).append( tag );
+
+					if( column.sortable ) {
+						if( order < 0 ) {
+							order = index;
+						}
+					}
+
+					totalWidth += column.width;
+
+					var col = {
+						data: column.name,
+						orderable: column.sortable,
+						className: 'dt-' + column.align,
+						width: column.width
+					};
+
+					columns.push( col );
+				}
+			);
+
+			var table = $( '#table-' + name ).DataTable(
+				{
+					dom: '<"top"i>rt<"bottom"lp><"clear">',
+					processing: true,
+					serverSide: true,
+					searching: false,
+					ajax: {
+						url: data.url,
+						type: 'POST'
+					},
+					fnServerParams: function( data ) {
+						fnParams( data );
+						data.method = 'list';
+						data.name = name;
+						data.category = category;
+					},
+					scrollX: ( totalWidth > 800 ),
+					columns: columns,
+					order: [[ order, 'asc']]
+				}
+			);
+			if( category in jPost.tables ) {
+				jPost.tables[ category ].push( table );
+			}
+			else {
+				jPost.tables[ category ] = [ table ];
+			}
+		}
+	);
+}
+
+// update tables
+jPost.updateTables = function( category ) {
+	jPost.tables[ category ].forEach(
+		function( table ) {
+			table.ajax.reload();
+		}
+	);
+}
+
+// get filter parameters
+jPost.getFilterParameters = function( data ) {
+	var array = [ 'species', 'tissue', 'disease', 'celltype', 'modification', 'instrument', 'instrumentMode' ];
+	array.forEach(
+		function( element ) {
+			data[ element ] = $( '#' + element ).val();
+		}
+	);
+}
+
+// get form data
+jPost.getFormData = function( name, data ) {
+	var query = $( '#' + name ).serializeArray();
+	query.forEach(
+		function( object ) {
+			if( object.value != null && object.value != '' ) {
+				if( object.name in data  ) {
+					data[ object.name ] = data[ object.name ] + '&' + object.value;
+				}
+				else {
+					data[ object.name ] = object.value;
+				}
+			}
+		}
+	);
+}
+
+// toggle checkboxes
+jPost.toggleCheckboxes = function( name ) {
+	$( '.' + name ).prop( 'checked', $( '#' + name ).prop('checked') );
+}
+
+// get selected values
+jPost.getCheckedArray = function( name ) {
+	var array = [];
+	$( '.' + name + ':checked' ).map(
+		function() {
+			var value = $(this).val();
+			array.push( value );
+		}
+	);
+
+	return array;
+}
+
+// add
+jPost.excludeDatasets = function() {
+	var array = jPost.getCheckedArray( 'check-dataset-dataset' );
+	$( '#excludedDatasets' ).select2( array.join( ',' ) );
+	jPost.updateTables( '' );
+}
+
+// open slice dialog
+jPost.openSliceDialog = function() {
+	$( '#dialog-slice-name' ).val( '' );
+	$( '#slice-dialog-message' ).html( '' );
+
+	$( '#dialog-slice' ).modal( 'show' );
+}
+
+// add slice
+jPost.addSlice = function() {
+	var found = false;
+	var name = $( '#dialog-slice-name' ).val();
+	jPost.slices.forEach(
+		function( slice ) {
+			if( slice.name == name ) {
+				found = true;
+			}
+		}
+	);
+
+	if( name.trim() == '' ) {
+		alert( 'Please enter the slice name.' );
+	}
+	else if( found ) {
+		alert( 'The specified slice name is already exists. Please enter another name.');
+	}
+	else {
+		jPost.createSlice( name );
+		$( '#dialog-slice' ).modal( 'hide' );
+	}
+}
+
+// create slice
+jPost.createSlice = function( name ) {
+	var length = jPost.slices.length;
+
+	jPost.slices.push(
+		{
+			name: name,
+			datasets: []
+		}
+	);
+
+	jPost.updateSliceSelection( length );
+	jPost.refreshSlices( name );
+
+	$( '.select-slice' ).append( '<option value="' + name + '">' + name + '</option> ');
+}
+
+// refresh slice
+jPost.refreshSlices = function( activePanel ) {
+	$( '#slice-tab' ).html( '' );
+	$( '#slice-panels' ).html( '' )
+
+	jPost.slices.forEach(
+		function( slice ) {
+			var itemTab = null;
+			var panelTab = null;
+
+			if( slice.name == activePanel ) {
+				itemTab = '<li class="nav-item active"><a class="nav-link bg-primary" href="#slice-' + slice.name + '" data-toggle="tab">' + slice.name + '</a></li>'
+				panelTab = '<div class="tab-pane fade in active table-panel" id="slice-' + slice.name + '"></div>';
+			}
+			else {
+				itemTab = '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-' + slice.name + '" data-toggle="tab">' + slice.name + '</a></li>';
+				panelTab = '<div class="tab-pane fade" id="slice-' + slice.name + '"></div>';
+			}
+
+			$( '#slice-tab' ).append( itemTab );
+			$( '#slice-panels' ).append( panelTab )
+
+			jPost.addSliceTables( slice.name );
+		}
+	);
+
+	var tab = '<li class="nav-item"><a href="javascript:jPost.openSliceDialog()">+</a></li>';
+	$( '#slice-tab' ).append( tab );
+}
+
+// add slice tables
+jPost.addSliceTables = function( name ) {
+	jPost.tables[ name ] = [];
+	var slice = jPost.getSlice( name );
+
+	$( '#slice-' + name ).append( '<ul class="nav nav-tabs" id="slice-' + name + '-tab"></ul>' );
+	$( '#slice-' + name ).append( '<div class="tab-content" id="slice-' + name + '-panels"></div>' );
+
+	$( '#slice-' + name + '-tab' ).append( '<li class="nav-item active"><a class="nav-link bg-primary" href="#slice-dataset-' + name + '-panel" data-toggle="tab">Dataset</a></li>' );
+	$( '#slice-' + name + '-panels' ).append( '<div class="tab-pane fade in active table-panel" id="slice-dataset-' + name + '-panel"></div>' );
+	$( '#slice-dataset-' + name + '-panel' ).append( '<table id="table-slice-dataset-' + name + '"></table>' );
+	jPost.createDbTable(
+		'slice-dataset-' + name,
+		name,
+		'datasets.php',
+		function( params ) {
+			for( key in slice ) {
+				params[ key ] = slice[ key ];
+			}
+		}
+	);
+
+	$( '#slice-' + name + '-tab' ).append( '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-protein-' + name + '-panel" data-toggle="tab">Protein</a></li>' );
+	$( '#slice-' + name + '-panels' ).append( '<div class="tab-pane fade table-panel" id="slice-protein-' + name + '-panel"></div>' );
+	$( '#slice-protein-' + name + '-panel' ).append( '<table id="table-slice-protein-' + name + '"></table>' );
+	jPost.createDbTable(
+		'slice-protein-' + name,
+		name,
+		'proteins.php',
+		function( params ) {
+			for( key in slice ) {
+				params[ key ] = slice[ key ];
+			}
+		}
+	);
+}
+
+// get slice
+jPost.getSlice = function( name ) {
+	var slice = null;
+	jPost.slices.forEach(
+		function( tmp ) {
+			if( tmp.name == name ) {
+				slice = tmp;
+			}
+		}
+	);
+	return slice;
+}
+
+// add datasets to slice
+jPost.addDatasetsToSlice = function() {
+	jPost.datasets = null;
+	jPost.slice = null;
+
+	var array = jPost.getCheckedArray( 'check-dataset-dataset' );
+	if( array.length == 0 ) {
+		alert( "No datasets are not selected. Please check one or more datasets." );
+		return;
+	}
+
+	jPost.datasets = array;
+
+	if( jPost.slices.length == 0 ) {
+		jPost.updateSliceSelection( -1 );
+	}
+	$( '#dialog-slice-selection' ).modal( 'show' );
+	$( '.check-dataset-dataset' ).prop( 'checked', false );
+	if( jPost.slices.length == 0 ) {
+		jPost.openSliceDialog();
+	}
+}
+
+// update slice selection
+jPost.updateSliceSelection = function( index ) {
+	if( index < 0 ) {
+		$( '#select-slice' ).html( '<option value="" selected>+ (New Slice)</option>' );
+	}
+	else {
+		$( '#select-slice' ).html( '<option value="">+ (New Slice)</option>' );
+	}
+
+	var counter = 0;
+	jPost.slices.forEach(
+		function( slice ) {
+			if( counter == index ) {
+				$( '#select-slice' ).append( '<option value="' + slice.name + '" selected>' + slice.name + '</option>' );
+			}
+			else {
+				$( '#select-slice' ).append( '<option value="' + slice.name + '">' + slice.name + '</option>' );
+			}
+			counter++;
+		}
+	);
+}
+
+// on close slice selection dialog
+jPost.onCloseSliceSelectionDialog = function() {
+	var name = $( '#select-slice' ).val();
+	if( name == '' ) {
+		jPost.openSliceDialog();
+		if( jPost.slices.length > length ) {
+			jPost.updateSliceSelection( length );
+		}
+	}
+	else {
+		var slice = jPost.getSlice( name );
+		if( slice != null && jPost.datasets != null ) {
+			jPost.setSliceInfo( slice, jPost.datasets );
+		}
+		$( '#dialog-slice-selection' ).modal( 'hide' );
+	}
+}
+
+// set slice information
+jPost.setSliceInfo = function( slice, datasets ) {
+	jPost.getFilterParameters( slice );
+
+	datasets.forEach(
+		function( dataset ) {
+			if( slice.datasets.indexOf( dataset ) < 0 ) {
+				slice.datasets.push( dataset );
+			}
+		}
+	);
+
+	jPost.updateTables( slice.name );
+}
+
+// compare slices
+jPost.compareSlices = function() {
+	var name1 = $( '#select-comparison-slice1' ).val();
+	var name2 = $( '#select-comparison-slice2' ).val();
+
+	if( name1 == '' || name2 == '' ) {
+		return;
+	}
+
+	var slice1 = jPost.getSlice( name1 );
+	var slice2 = jPost.getSlice( name2 );
+
+	if( slice1 == null || slice2 == null ) {
+		return;
+	}
+
+	var tag = '<togostanza-group_comp method="sc" valud="eb "'
+		    + 'dataset1="' + slice1.datasets.join( ' ' ) + '" '
+		    + 'dataset2="' + slice2.datasets.join( ' ' ) + '"></togostanza-group_comp>';
+
+	$( '#comparison-result' ).html( tag );
+}
+
+/*
 
 // create page
 jPost.createTopPage = function() {
@@ -152,25 +691,6 @@ jPost.createPeptidePage = function() {
 	$( '.menu-item' ).css( 'display', 'none' );
 }
 
-// add options
-jPost.addOptions = function( select, array, valueIndex, displayIndex ) {
-	for( var i = 0; i < array.length; i++ ) {
-		var item = array[ i ];
-		var tag = '<option value="' + item[ valueIndex ] + '">'
-				+ item[ displayIndex ] + '</option>'
-		select.append( tag );
-	}
-}
-
-// create tag select
-jPost.createTagSelect = function( element ) {
-	element.css( 'display', 'inline' );
-	element.select2(
-		{
-			tags: true
-		}
-	);
-}
 
 // create tables
 jPost.createTopTables = function() {
@@ -371,10 +891,7 @@ jPost.toggleProfileCheckboxes = function() {
 	jPost.toggleCheckboxes('profile_check');
 }
 
-// toggle checkboxes
-jPost.toggleCheckboxes = function( name ) {
-	$( '.' + name ).prop( 'checked', $( '#' + name ).prop('checked') );
-}
+
 
 // gets array
 jPost.getArray = function( key ) {
@@ -481,7 +998,7 @@ jPost.removeExceptedDatasets = function() {
 	jPost.removeObjectsFromArray( jPost.KEY_EXCEPTED_DATASETS, 'dataset_check-ed' );
 }
 
-// show panel
+//show panel
 jPost.showPanel = function( panel ) {
 	$( '.top-panel' ).css( 'display', 'none' );
 	$( '.menu-item' ).removeClass( 'active' );
@@ -489,4 +1006,4 @@ jPost.showPanel = function( panel ) {
 	$( '#' + panel + '-menu-item' ).addClass( 'active' );
 }
 
-
+*/

@@ -11,7 +11,7 @@ class Config {
 
 
 	// endpoint
-	public static $SPARQL_ENDPOINT = 'http://db-dev.jpostdb.org/sparql2/';
+	public static $SPARQL_ENDPOINT = 'http://db-dev.jpostdb.org/sparql-test/';
 
 	// table columns
 	public static $TABLE_COLUMN_MAP = array(
@@ -88,55 +88,6 @@ class Config {
 			)
 		),
 
-		'dataset' => array(
-			array(
-				'title'   => '<input type="checkbox" id="dataset_check{$suffix}" onchange="jPost.toggleCheckboxes(\'dataset_check{$suffix}\')">',
-				'display' => '<input type="checkbox" class="dataset_check{$suffix}" name="peptide[]" value="{$dataset}">'
-			),
-			array(
-				'title'   => 'ID',
-				'display' => '<a href="dataset.php?object={$dataset|escape:"url"}" target="jpost">{$dataset_id}</a>',
-				'name'    => 'dataset_id',
-				'search'  => true
-			),
-			array(
-				'title'   => 'Project ID',
-				'display' => '{$project_id}',
-				'name'    => 'project_id',
-				'search'  => true
-			),
-			array(
-				'title'   => 'Project Title',
-				'display' => '{$project_title}',
-				'name'    => 'project_title',
-				'search'  => true
-			),
-			array(
-				'title'   => 'Project Date',
-				'display' => '{$project_date}',
-				'name'    => 'project_date'
-			),
-			array(
-				'title'   => '#RawData',
-				'display' => '{$rawdata_num}',
-				'name'    => 'rawdata_num'
-			),
-			array(
-				'title'   => '#Protein',
-				'display' => '{$protein_num}',
-				'name'    => 'protein_num'
-			),
-			array(
-				'title'   => '#Peptide',
-				'display' => '{$peptide_num}',
-				'name'    => 'peptide_num'
-			),
-			array(
-				'title'   => '#Psm',
-				'display' => '{$psm_num}',
-				'name'    => 'psm_num'
-			)
-		),
 
 		'profile' => array(
 			array(

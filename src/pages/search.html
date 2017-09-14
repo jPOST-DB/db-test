@@ -1,0 +1,105 @@
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h4 class="panel-title">
+      <a data-toggle="collapse" href="#search-form" id="search-filter-title">Filters</a>
+    </h4>
+  </div>
+  <div class="panel-body collapse.show" id="search-form">
+    <form onsubmit="jPost.search(); return false;">
+      <div class="form-group">
+        <label for="search-form-species">Species</label>
+        <select id="species" name="species[]" class="form-control" size="1" style="display: none;" multiple>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="search-form-tissue">Tissue</label>
+        <select id="tissue" name="tissue[]" class="form-control" size="1" style="display: none;" multiple>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="search-form-disease">Disease</label>
+        <select id="disease" name="disease[]" class="form-control" size="1" style="display: none;" multiple>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="search-form-disease">Cell Type</label>
+        <select id="celltype" name="celltype[]" class="form-control" size="1" style="display: none;" multiple>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="search-form-mod">Modification</label>
+        <select id="modification" name="modification[]" class="form-control" size="1" style="display: none;" multiple>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="search-form-instrument">Instrument</label>
+        <select id="instrument" name="instrument[]" class="form-control" size="1" style="display: none;" multiple>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="search-form-instmode">Instrument Mode</label>
+        <select id="instrumentMode" name="instrumentMode[]" class="form-control" size="1" style="display: none;" multiple>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="search-form-keyword">Keyword</label>
+        <input id="keyword" name="keywords" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="search-form-excluded-datasets">Excluded Datasets</label>
+        <select id="excludedDatasets" name="excludedDataset[]" class="form-control" size="1" style="display: none;" multiple>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="search-form-excluded-proteins">Excluded Proteins</label>
+        <select id="excludedProteins" name="excludedProtein[]" class="form-control" size="1" style="display: none;" multiple>
+        </select>
+      </div>
+    </form>
+  </div>
+</div>
+
+<ul class="nav nav-tabs">
+  <li class="nav-item active"><a class="nav-link bg-primary" href="#table-tab-dataset" data-toggle="tab">Dataset</a></li>
+  <li class="nav-item"><a class="nav-link bg-primary" href="#table-tab-protein"  data-toggle="tab">Protein</a></li>
+</ul>
+<div class="tab-content">
+  <div class="tab-pane fade in active table-panel" id="table-tab-dataset">
+    <form id="dataset-form">
+      <table id="table-dataset" class="display"></table>
+    </form>
+    <div>
+      <button onclick="jPost.excludeDatasets()">Exclude</button>
+      <button onclick="jPost.addDatasetsToSlice()">Add to Slice</button>
+    </div>
+  </div>
+  <div class="tab-pane fade table-panel" id="table-tab-protein">
+    <form id="protein-form">
+      <table id="table-protein" class="display"></table>
+    </form>
+    <button onclick="jPost.excludeProteins()">Exclude</button>
+    <button onclick="jPost.addProteinsToSlice()">Add to Slice</button>
+  </div>
+</div>
+
+<script>
+    jPost.createSearchPage();
+    $( '#search-form' ).collapse( 'toggle' );
+
+    jPost.createDbTable(
+        'dataset',
+        '',
+        'datasets.php',
+        function( data ) {
+        	jPost.getFilterParameters( data );
+       	}
+    );
+    jPost.createDbTable(
+       	'protein',
+       	'',
+       	'proteins.php',
+       	function( data ) {
+       		jPost.getFilterParameters( data );
+        }
+    );
+</script>

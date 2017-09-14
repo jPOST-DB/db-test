@@ -10,39 +10,104 @@ require_once( __DIR__ . '/../libs/smarty/Smarty.class.php' );
   */
 class PageTools {
 
-	public static $KEY_OBJECT = 'object';
+	/**
+	 * sets the page information
+	 */
+	public static function setPageInfo( &$params ) {
+		if( array_key_exists( 'order', $_REQUEST ) ) {
+			$order = $_REQUEST[ 'order' ];
+			$columns = $_REQUEST[ 'columns' ];
+
+			$params[ 'order' ]= $order[ 0 ][ 'dir' ]
+							  . '( ?' . $columns[ intval( $order[ 0 ][ 'column' ] ) ][ 'data' ] . ' )';
+		}
+
+		if( array_key_exists( 'start', $_REQUEST ) ) {
+			$params[ 'offset' ] = intval( $_REQUEST[ 'start' ] );
+		}
+
+		if( array_key_exists( 'length', $_REQUEST ) ) {
+			$params[ 'limit' ] = intval( $_REQUEST[ 'length' ] );
+		}
+	}
 
 	/**
-	 * shows page
+	 *  sets the filter information
 	 */
-	public static function showPage( $template ) {
-		if( !array_key_exists( self::$KEY_OBJECT, $_REQUEST ) ) {
-			echo Messages::$ERROR_PARAMETER_IS_NOT_SET;
-			return;
-		}
-		$object = $_REQUEST[ self::$KEY_OBJECT ];
-
-		$parameters = array(
-			'object' => $object
-		);
-
-		$smarty = new Smarty();
-		$smarty->assign( $parameters );
-		$query = $smarty->fetch( __DIR__ . '/../templates/sparql/' . $template . '.sparql.tpl' );
-
-		$sparql = new Sparql( $query );
-		$sparql->execute();
-
-		$result = $sparql->getResultSet();
-
-		if( $result == null || count( $result ) == 0 ) {
-			echo Messages::$ERROR_NO_DATA;
-			return;
+	public static function setFilterInfo( &$params ) {
+		$filters = array( 'species', 'tissue', 'disease', 'celltype', 'modification', 'instrument', 'instrumentMode' );
+		foreach( $filters as $filter ) {
+			$values = PageTools::getParameter( $filter );
+			if( $values != null ) {
+				$params[ $filter ] = PageTools::getFilterValues( $values );
+			}
 		}
 
-		$smarty = new Smarty();
-		$smarty->assign( $result[ 0 ] );
-		$smarty->display( __DIR__ . '/../templates/html/' . $template . '.html.tpl' );
+		$datasets = self::getDatasets();
+		if( $datasets != null && $datasets != '' ) {
+			$params[ 'datasets' ] = $datasets;
+		}
+	}
+
+	/**
+	 * gets the parameter
+	 */
+	public static function getParameter( $key ) {
+		$object = null;
+		if( array_key_exists( $key, $_REQUEST ) ) {
+			$object = $_REQUEST[ $key ];
+		}
+
+		return $object;
+	}
+
+	/**
+	 * gets filter values
+	 */
+	public static function getFilterValues( $values ) {
+		$string = '';
+
+		foreach( $values as $value ) {
+			if( $string != '' ) {
+				$string = $string . ', ';
+			}
+			$string = $string . '"' . $value . '"';
+		}
+
+		return $string;
+	}
+
+	/**
+	 * gets values
+	 */
+	public static function getValues( $array, $key ) {
+		$string = '';
+
+		foreach( $array as $row ) {
+			$string = $string . ' <' . $row[ $key ] . '>';
+		}
+
+		return $string;
+	}
+
+	/**
+	 * get datasets
+	 */
+	public static function getDatasets() {
+		$datasets = null;
+
+		if( array_key_exists( 'datasets', $_REQUEST ) ) {
+			$params = array();
+			$params[ 'datasets' ] = PageTools::getFilterValues( $_REQUEST[ 'datasets' ] );
+
+			$sparqlResult = Sparql::callSparql( $params, 'datasets' );
+			$datasets = '';
+			foreach( $sparqlResult as $dataset ) {
+				$datasets = $datasets . ' <' . $dataset[ 'dataset' ] . '>';
+			}
+		}
+
+		return $datasets;
 	}
 }
 

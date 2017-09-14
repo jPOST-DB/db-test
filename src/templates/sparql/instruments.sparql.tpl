@@ -7,11 +7,12 @@ PREFIX bto: <http://purl.obolibrary.org/obo/BTO_>
 PREFIX doid: <http://purl.obolibrary.org/obo/DOID_>
 PREFIX unimod: <http://www.unimod.org/obo/unimod.obo#UNIMOD_>
 PREFIX tax: <http://identifiers.org/taxonomy/>
+PREFIX owl: <http://www.geneontology.org/formats/oboInOwl#>
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
-SELECT DISTINCT ?object ?label
+SELECT DISTINCT ?label
 WHERE {
     ?project a jpo:Project;
-        jpo:hasDataset/jpo:hasProfile/jpo:hasMsMode/jpo:{$item} ?object .
+        jpo:hasDataset/jpo:hasProfile/jpo:hasMsMode/jpo:{$item}  ?object .
     ?object rdfs:label ?label .
 }
