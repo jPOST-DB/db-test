@@ -43,9 +43,19 @@ class PageTools {
 			}
 		}
 
-		$datasets = self::getDatasets();
-		if( $datasets != null && $datasets != '' ) {
+		$datasets = self::getObjects( 'dataset', 'datasets', 'dataset', false );
+		if( $datasets != null ) {
 			$params[ 'datasets' ] = $datasets;
+		}
+
+		$excludedDatasets = self::getObjects( 'excludedDataset', 'datasets', 'dataset', true );
+		if( $excludedDatasets != null ) {
+			$params[ 'excludedDatasets' ] = $excludedDatasets;
+		}
+
+		$excludedProteins = self::getObjects( 'excludedProtein', 'proteins', 'protein', true );
+		if( $excludedProteins != null ) {
+			$params[ 'excludedProteins' ] = $excludedProteins;
 		}
 	}
 
@@ -93,21 +103,28 @@ class PageTools {
 	/**
 	 * get datasets
 	 */
-	public static function getDatasets() {
-		$datasets = null;
+	public static function getObjects( $name, $template, $item, $comma ) {
+		$objects = null;
 
-		if( array_key_exists( 'datasets', $_REQUEST ) ) {
+		if( array_key_exists( $name, $_REQUEST ) ) {
 			$params = array();
-			$params[ 'datasets' ] = PageTools::getFilterValues( $_REQUEST[ 'datasets' ] );
+			$params[ $template ] = PageTools::getFilterValues( $_REQUEST[ $name ] );
 
-			$sparqlResult = Sparql::callSparql( $params, 'datasets' );
+			$sparqlResult = Sparql::callSparql( $params, $template );
 			$datasets = '';
-			foreach( $sparqlResult as $dataset ) {
-				$datasets = $datasets . ' <' . $dataset[ 'dataset' ] . '>';
+			foreach( $sparqlResult as $object ) {
+				if( $objects != '' && $comma ) {
+					$objects = $objects . ',';
+				}
+				$objects = $objects . ' <' . $object[ $item ] . '>';
+			}
+
+			if( $objects == '' ) {
+				$objects = '<http://example.com/dummy>';
 			}
 		}
 
-		return $datasets;
+		return $objects;
 	}
 }
 

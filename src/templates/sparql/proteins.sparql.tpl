@@ -8,37 +8,21 @@ PREFIX mod: <http://purl.obolibrary.org/obo/MOD_>
 PREFIX bto: <http://purl.obolibrary.org/obo/BTO_>
 PREFIX doid: <http://purl.obolibrary.org/obo/DOID_>
 PREFIX unimod: <http://www.unimod.org/obo/unimod.obo#UNIMOD_>
+PREFIX uniprot: <http://purl.uniprot.org/core/>
 PREFIX tax: <http://identifiers.org/taxonomy/>
 PREFIX owl: <http://www.geneontology.org/formats/oboInOwl#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX : <http://rdf.jpostdb.org/entry/>
 
 
-select {$columns} where {
-    values $protein { {$proteins} } .
+SELECT ?protein WHERE {
+    ?dataprotein a jpo:Protein ;
+        jpo:hasDatabaseSequence ?protein .
 
-	?protein uniprot:recommendedName/uniprot:fullName ?full_name .
+    ?protein uniprot:mnemonic ?mnemonic .
 
-    optional {
-        ?protein uniprot:mnemonic ?mnemonic .
-    }
+{if isset( $proteins )}
+    filter( str( ?mnemonic ) in ( {$proteins} ) ).
+{/if}
 
-    optional {
-        ?protein uniprot:sequence/rdf:value ?sequence .
-    }
-    optional {
-        ?protein uniprot:sequence/uniprot:mass ?mass .
-    }
 }
-
-{if isset( $order )}
-    ORDER BY {$order}
-{/if}
-
-{if isset( $limit )}
-    LIMIT {$limit}
-{/if}
-
-{if isset( $offset )}
-    OFFSET {$offset}
-{/if}

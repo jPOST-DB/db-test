@@ -29,6 +29,10 @@ SELECT {$columns} WHERE {
         dct:identifier ?dataset_id ;
         jpo:hasProfile ?profile .
 
+{if isset( $excludedDatasets )}
+    filter( $dataset not in ( {$excludedDatasets} ) ).
+{/if}
+
     ?profile jpo:hasSample ?sample .
 
 {if strpos( $columns, "psm" )}
@@ -87,7 +91,7 @@ SELECT {$columns} WHERE {
 {/if}
 
 
-{if strpos( $columns, "mnemonic" ) != false}
+{if strpos( $columns, "mnemonic" ) != false || isset( $excludedProteins ) }
     ?dataset jpo:hasProtein ?dataprotein .
 
     ?dataprotein
@@ -100,6 +104,10 @@ SELECT {$columns} WHERE {
     ?protein uniprot:recommendedName/uniprot:fullName ?full_name ;
         uniprot:mnemonic ?mnemonic ;
         uniprot:sequence ?sequenceObject .
+
+  {if isset( $excludedProteins )}
+      filter( ?protein not in ( {$excludedProteins} ) ).
+  {/if}
 
     ?sequenceObject a uniprot:Simple_Sequence ;
         uniprot:mass ?mass ;

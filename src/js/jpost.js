@@ -30,6 +30,7 @@ jPost.createPage = function() {
 
 // create panels
 jPost.createPanels = function( data ) {
+	jPost.pageCounter = data.length;
 	data.forEach(
 		jPost.addPanel
 	);
@@ -49,7 +50,21 @@ jPost.addPanel = function( panel ) {
 	tag = '<div id="panel-' + panel.name + '" class="top-panel" style="display: none;"></div>';
 	$( '#panels' ).append( tag );
 
-	$( '#panel-' + panel.name ).load( 'pages/' + panel.name + '.html' );
+	$( '#panel-' + panel.name ).load(
+		'pages/' + panel.name + '.html',
+		function() {
+			jPost.pageCounter = jPost.pageCounter - 1;
+			if( jPost.pageCounter == 0 ) {
+				var json = localStorage.getItem( 'jPOST-slices' );
+				if( json != null ) {
+					jPost.slices = JSON.parse( json );
+					console.log( jPost.slices );
+					jPost.refreshSlices( -1 );
+					jPost.updateSliceSelection( -1 );
+				}
+			}
+		}
+	);
 }
 
 // show panel
@@ -79,7 +94,7 @@ jPost.setTagSelect = function( select, url, data, valueIndex, displayIndex ) {
 	}
 
 	select.css( 'display', 'inline' );
-	select.select2(
+	var select2 = select.select2(
 		{
 			ajax: {
 				url: url,
@@ -108,6 +123,8 @@ jPost.setTagSelect = function( select, url, data, valueIndex, displayIndex ) {
 			tags: true
 		}
 	);
+
+	return select2;
 }
 
 
@@ -244,8 +261,8 @@ jPost.createSearchPage = function() {
 		}
 	);
 
-	jPost.setTagSelect(
-		$( '#excludedDatasets' ),
+	jPost.excludedDatasetSelect2 = jPost.setTagSelect(
+		$( '#excludedDataset' ),
 		'execute_sparql.php',
 		{
 			columns: 'distinct ?dataset_id',
@@ -254,14 +271,14 @@ jPost.createSearchPage = function() {
 		'dataset_id',
 		'dataset_id'
 	);
-	$( '#excludedProteins' ).change(
+	$( '#excludedDataset' ).change(
 		function() {
 			jPost.updateTables( '' );
 		}
 	);
 
 	jPost.setTagSelect(
-		$( '#excludedProteins' ),
+		$( '#excludedProtein' ),
 		'execute_sparql.php',
 		{
 			columns: 'distinct ?mnemonic',
@@ -270,7 +287,7 @@ jPost.createSearchPage = function() {
 		'mnemonic',
 		'mnemonic'
 	);
-	$( '#exceptedProteins' ).change(
+	$( '#exceptedProtein' ).change(
 		function() {
 			jPost.updateTables( '' );
 		}
@@ -363,7 +380,10 @@ jPost.updateTables = function( category ) {
 
 // get filter parameters
 jPost.getFilterParameters = function( data ) {
-	var array = [ 'species', 'tissue', 'disease', 'celltype', 'modification', 'instrument', 'instrumentMode' ];
+	var array = [
+		'species', 'tissue', 'disease', 'celltype', 'modification', 'instrument', 'instrumentMode',
+		'keyword', 'excludedDataset', 'excludedProtein'
+	];
 	array.forEach(
 		function( element ) {
 			data[ element ] = $( '#' + element ).val();
@@ -406,11 +426,50 @@ jPost.getCheckedArray = function( name ) {
 	return array;
 }
 
-// add
+// exclude datasets
 jPost.excludeDatasets = function() {
 	var array = jPost.getCheckedArray( 'check-dataset-dataset' );
-	$( '#excludedDatasets' ).select2( array.join( ',' ) );
+
+	array.forEach(
+		function( dataset ) {
+			$( '#excludedDataset' ).select2(
+				'trigger',
+				'select',
+				{
+					data: { id: dataset, text: dataset }
+				}
+			);
+		}
+	);
+
 	jPost.updateTables( '' );
+}
+
+// exclude proteins
+jPost.excludeProteins = function() {
+	var array = jPost.getCheckedArray( 'check-protein-protein' );
+
+	array.forEach(
+		function( protein ) {
+			$( '#excludedProtein' ).select2(
+				'trigger',
+				'select',
+				{
+					data: { id: protein, text: protein}
+				}
+			);
+		}
+	);
+
+	jPost.updateTables( '' );
+}
+
+// create new slice
+jPost.createNewSlice = function() {
+	jPost.slice = null;
+	jPost.datasets = null;
+
+	jPost.openSliceDialog();
 }
 
 // open slice dialog
@@ -441,25 +500,26 @@ jPost.addSlice = function() {
 	}
 	else {
 		jPost.createSlice( name );
+		if( jPost.datasets != null ) {
+			var slice = jPost.getSlice( name );
+			jPost.setSliceInfo( slice, jPost.datasets );
+			$( '#dialog-slice-selection' ).modal( 'hide' );
+		}
 		$( '#dialog-slice' ).modal( 'hide' );
 	}
 }
 
 // create slice
 jPost.createSlice = function( name ) {
-	var length = jPost.slices.length;
-
 	jPost.slices.push(
 		{
 			name: name,
-			datasets: []
+			dataset: []
 		}
 	);
 
 	jPost.updateSliceSelection( length );
 	jPost.refreshSlices( name );
-
-	$( '.select-slice' ).append( '<option value="' + name + '">' + name + '</option> ');
 }
 
 // refresh slice
@@ -488,8 +548,11 @@ jPost.refreshSlices = function( activePanel ) {
 		}
 	);
 
-	var tab = '<li class="nav-item"><a href="javascript:jPost.openSliceDialog()">+</a></li>';
+	var tab = '<li class="nav-item"><a href="javascript:jPost.createNewSlice()">+</a></li>';
 	$( '#slice-tab' ).append( tab );
+
+	var json = JSON.stringify( jPost.slices );
+	localStorage.setItem( 'jPOST-slices', json );
 }
 
 // add slice tables
@@ -511,6 +574,9 @@ jPost.addSliceTables = function( name ) {
 			for( key in slice ) {
 				params[ key ] = slice[ key ];
 			}
+			if( slice.dataset.length == 0 ) {
+				params[ 'dataset' ] = [ 'empty dataset' ];
+			}
 		}
 	);
 
@@ -525,8 +591,14 @@ jPost.addSliceTables = function( name ) {
 			for( key in slice ) {
 				params[ key ] = slice[ key ];
 			}
+			if( slice.dataset.length == 0 ) {
+				params[ 'dataset' ] = [ 'empty dataset' ];
+			}
 		}
 	);
+
+	var tag = '<button onclick="jPost.deleteSlice( ' + "'" + name + "'" + ' )" class="btn">Delete Slice</button>';
+	$( '#slice-' + name + '-panels' ).append( tag );
 }
 
 // get slice
@@ -559,7 +631,6 @@ jPost.addDatasetsToSlice = function() {
 		jPost.updateSliceSelection( -1 );
 	}
 	$( '#dialog-slice-selection' ).modal( 'show' );
-	$( '.check-dataset-dataset' ).prop( 'checked', false );
 	if( jPost.slices.length == 0 ) {
 		jPost.openSliceDialog();
 	}
@@ -573,6 +644,7 @@ jPost.updateSliceSelection = function( index ) {
 	else {
 		$( '#select-slice' ).html( '<option value="">+ (New Slice)</option>' );
 	}
+	$( '.select-slice' ).html( '<option value="">( Select a slice. )</option> ');
 
 	var counter = 0;
 	jPost.slices.forEach(
@@ -583,6 +655,8 @@ jPost.updateSliceSelection = function( index ) {
 			else {
 				$( '#select-slice' ).append( '<option value="' + slice.name + '">' + slice.name + '</option>' );
 			}
+			$( '.select-slice' ).append( '<option value="' + slice.name + '">' + slice.name + '</option> ');
+
 			counter++;
 		}
 	);
@@ -592,10 +666,7 @@ jPost.updateSliceSelection = function( index ) {
 jPost.onCloseSliceSelectionDialog = function() {
 	var name = $( '#select-slice' ).val();
 	if( name == '' ) {
-		jPost.openSliceDialog();
-		if( jPost.slices.length > length ) {
-			jPost.updateSliceSelection( length );
-		}
+		alert( 'Select a slice.' );
 	}
 	else {
 		var slice = jPost.getSlice( name );
@@ -612,13 +683,34 @@ jPost.setSliceInfo = function( slice, datasets ) {
 
 	datasets.forEach(
 		function( dataset ) {
-			if( slice.datasets.indexOf( dataset ) < 0 ) {
-				slice.datasets.push( dataset );
+			if( slice.dataset.indexOf( dataset ) < 0 ) {
+				slice.dataset.push( dataset );
 			}
 		}
 	);
 
 	jPost.updateTables( slice.name );
+
+	var json = JSON.stringify( jPost.slices );
+	localStorage.setItem( 'jPOST-slices', json );
+}
+
+// delete slice
+jPost.deleteSlice = function( name ) {
+	if( confirm( 'Are you sure to delete the slice?' ) ) {
+		var index = -1;
+		for( var i = 0; i < jPost.slices.length; i++ ) {
+			if( jPost.slices[ i ].name == name ) {
+				index = i;
+			}
+		}
+
+		if( index >= 0 ) {
+			jPost.slices.splice( index, 1 );
+		}
+
+		jPost.refreshSlices( -1 );
+	}
 }
 
 // compare slices
@@ -638,372 +730,11 @@ jPost.compareSlices = function() {
 	}
 
 	var tag = '<togostanza-group_comp method="sc" valid="eb" '
-		    + 'dataset1="' + slice1.datasets.join( ' ' ) + '" '
-		    + 'dataset2="' + slice2.datasets.join( ' ' ) + '"></togostanza-group_comp>';
+		    + 'dataset1="' + slice1.dataset.join( ' ' ) + '" '
+		    + 'dataset2="' + slice2.dataset.join( ' ' ) + '"></togostanza-group_comp>';
 
+	$( '#comparison-result' ).html( '' );
 	$( '#comparison-result' ).html( tag );
 }
 
-/*
 
-// create page
-jPost.createTopPage = function() {
-	jPost.createSearchPage();
-	jPost.createTopTables();
-
-	$( 'body' ).css( 'display', 'block' );
-	$( '#search-filter-title' ).click();
-
-	$( '#pickup_proteins_button' ).click( jPost.addPickedUpProteins );
-	$( '#except_proteins_button' ).click( jPost.addExceptedProteins );
-	$( '#pickup_datasets_button' ).click( jPost.addPickedUpDatasets );
-	$( '#except_datasets_button' ).click( jPost.addExceptedDatasets );
-	$( '#remove_pickup_proteins_button' ).click( jPost.removePickedUpProteins );
-	$( '#remove_except_proteins_button' ).click( jPost.removeExceptedProteins );
-	$( '#remove_pickup_datasets_button' ).click( jPost.removePickedUpDatasets );
-	$( '#remove_except_datasets_button' ).click( jPost.removeExceptedDatasets );
-
-
-	jPost.showPanel( 'search-panel' );
-}
-
-// create dataset page
-jPost.createDatasetPage = function() {
-	jPost.createItemTable( '#profile-table', 'profile', 'dataset_items' );
-	jPost.createItemTable( '#protein-table', 'protein', 'dataset_items' );
-	jPost.createItemTable( '#peptide-table', 'peptide', 'dataset_items' );
-
-	$( '.menu-item' ).css( 'display', 'none' );
-}
-
-// create protein page
-jPost.createProteinPage = function() {
-	jPost.createItemTable( '#dataset-table', 'dataset', 'protein_items' );
-	jPost.createItemTable( '#peptide-table', 'peptide_position', 'protein_items' );
-
-	$( '.menu-item' ).css( 'display', 'none' );
-}
-
-// create peptide page
-jPost.createPeptidePage = function() {
-	jPost.createItemTable( '#psm-table', 'psm', 'peptide_items' );
-
-	$( '.menu-item' ).css( 'display', 'none' );
-}
-
-
-// create tables
-jPost.createTopTables = function() {
-	jPost.createTopTable( '#dataset-table', 'dataset', 'datasets', jPost.KEY_EXCEPTED_DATASETS );
-	jPost.createTopTable( '#protein-table', 'protein', 'proteins', jPost.KEY_EXCEPTED_PROTEINS );
-	jPost.createStorageTable( '#picked-proteins-table', 'protein', 'proteins', jPost.KEY_PICKED_UP_PROTEINS, '-pp' );
-	jPost.createStorageTable( '#picked-datasets-table', 'dataset', 'datasets', jPost.KEY_PICKED_UP_DATASETS, '-pd' );
-	jPost.createStorageTable( '#excepted-proteins-table', 'protein', 'proteins', jPost.KEY_EXCEPTED_PROTEINS, '-ep' );
-	jPost.createStorageTable( '#excepted-datasets-table', 'dataset', 'datasets', jPost.KEY_EXCEPTED_DATASETS, '-ed' );
-}
-
-// create top table
-jPost.createTopTable = function( table, name, template, minusKey ) {
-	$.ajax(
-		{
-			type: 'POST',
-			url: 'get_table_headers.php',
-			data: {
-				table: name,
-				suffix: '',
-			},
-			dataType: 'json'
-		}
-	).then(
-		function( data ) {
-			jPost.addTableHeader( $( table ), data );
-
-			var datatable = $( table ).DataTable(
-				{
-					pageLength: 25,
-					serverSide: true,
-					processing: true,
-					pagingType: "full_numbers",
-					columnDefs: [
-						{
-							orderable: false,
-							targets: 0
-						}
-					],
-					order: [ [ 1, 'asc' ] ],
-					fnServerParams: function( data ) {
-						data.table = name;
-						data.template = template;
-						data.suffix = '';
-						data.minus = JSON.stringify( jPost.getArray( minusKey ) );
-						data.species = $( '#species' ).val();
-						data.tissue = $( '#tissue' ) .val();
-						data.disease = $( '#disease' ).val();
-						data.modification = $( '#modification' ).val();
-						data.instrument = $( '#instrument' ).val();
-						data.instrumentMode = $( '#instrumentMode' ).val();
-					},
-					ajax: 'get_table_data.php'
-				}
-			);
-
-			jPost.tables.push( datatable );
-		}
-	);
-}
-
-jPost.createStorageTable = function( table, name, template, key, suffix ) {
-	$.ajax(
-		{
-			type: 'POST',
-			url: 'get_table_headers.php',
-			data: {
-				table: name,
-				suffix: suffix
-			},
-			dataType: 'json'
-		}
-	).then(
-		function( data ) {
-			jPost.addTableHeader( $( table ), data );
-
-			var datatable = $( table ).DataTable(
-				{
-					pageLength: 25,
-					serverSide: true,
-					processing: true,
-					pagingType: "full_numbers",
-					columnDefs: [
-						{
-							orderable: false,
-							targets: 0
-						}
-					],
-					order: [ [ 1, 'asc' ] ],
-					fnServerParams: function( data ) {
-						data.table = name;
-						data.template = template;
-						data.suffix = suffix;
-						data.objects = JSON.stringify( jPost.getArray( key ) );
-					},
-					ajax: 'get_table_data.php'
-				}
-			);
-
-			jPost.tables.push( datatable );
-		}
-	);
-}
-
-// create table
-jPost.createItemTable = function( table, name, template ) {
-	$.ajax(
-		{
-			type: 'POST',
-			url: 'get_table_headers.php',
-			data: { table: name },
-			dataType: 'json'
-		}
-	).then(
-		function( data ) {
-			jPost.addTableHeader( $( table ), data );
-
-			var datatable = $( table ).DataTable(
-				{
-					pageLength: 25,
-					serverSide: true,
-					processing: true,
-					pagingType: "full_numbers",
-					columnDefs: [
-						{
-							orderable: false,
-							targets: 0
-						}
-					],
-					order: [ [ 1, 'asc' ] ],
-					fnServerParams: function( data ) {
-						data.table = name;
-						data.template = template;
-						data.object = $( '#item_object' ).val();
-						data.suffix = '';
-					},
-					ajax: 'get_table_data.php'
-				}
-			);
-		}
-	);
-}
-
-// add table header
-jPost.addTableHeader = function( table, headers ) {
-	var tag = '';
-	for( var i = 0 ;i < headers.length; i++ ) {
-		tag += '<th>' + headers[ i ] + '</th>';
-	}
-	tag = '<thead><tr>' + tag + '</tr></thead>';
-	table.append( tag );
-}
-
-// update tables
-jPost.updateTables = function() {
-	var tables = jPost.tables;
-	for( var i = 0 ;i < tables.length; i++ ) {
-		var table = tables[ i ];
-		table.ajax.reload();
-	}
-}
-
-// start waiting
-jPost.startWaiting = function() {
-	if( !jPost.waiting ) {
-		jPost.waiting = true;
-		$( '#loading' ).fadeIn();
-		$( '#container' ).fadeOut();
-	}
-}
-
-// end waiting
-jPost.endWaiting = function() {
-	if( jPost.waiting ) {
-		jPost.waiting = false;
-		$( '#loading' ).fadeOut();
-		$( '#container' ).fadeIn();
-	}
-}
-
-// toggle protein checkboxes
-jPost.toggleProteinCheckboxes = function() {
-	jPost.toggleCheckboxes('protein_check');
-}
-
-// toggle dataset checkboxes
-jPost.toggleDatasetCheckboxes = function() {
-	jPost.toggleCheckboxes('dataset_check');
-}
-
-// toggle peptide checkboxes
-jPost.togglePeptideCheckboxes = function() {
-	jPost.toggleCheckboxes('peptide_check');
-}
-
-// toggle profile checkboxes
-jPost.toggleProfileCheckboxes = function() {
-	jPost.toggleCheckboxes('profile_check');
-}
-
-
-
-// gets array
-jPost.getArray = function( key ) {
-	var json = localStorage.getItem( key );
-	if( json == null ) {
-		return null;
-	}
-
-	return JSON.parse( json );
-}
-
-// sets array
-jPost.setArray = function( key, array ) {
-	if( array == null ) {
-		localStorage.removeItem( key );
-	}
-	else {
-		localStorage.setItem( key, JSON.stringify(array) );
-	}
-}
-
-// add objects
-jPost.addObjectsToArray = function( key, className ) {
-	var array = jPost.getArray( key );
-	if( array == null ) {
-		array = [];
-	}
-
-	$( '.' + className + ':checked' ).map(
-		function() {
-			var value = $(this).val();
-			if( array.indexOf( value ) < 0 ) {
-				array.push( value );
-			}
-		}
-	);
-
-	jPost.setArray( key, array );
-
-	$( '.' + className + ':checked' ).prop( 'checked', false );
-	jPost.updateTables();
-}
-
-// remove objects
-jPost.removeObjectsFromArray = function( key, className ) {
-	var array = jPost.getArray( key );
-	if( array == null ) {
-		return;
-	}
-
-	$( '.' + className + ':checked' ).map(
-		function() {
-			var value = $(this).val();
-			var index = array.indexOf( value );
-			if( index >= 0 ) {
-				array.splice( index, 1 );
-			}
-		}
-	);
-
-	jPost.setArray( key, array );
-
-	$( '.' + className + ':checked' ).prop( 'checked', false );
-	jPost.updateTables();
-}
-
-// add picked up proteins
-jPost.addPickedUpProteins = function() {
-	jPost.addObjectsToArray( jPost.KEY_PICKED_UP_PROTEINS, 'protein_check' );
-}
-
-// add excepted proteins
-jPost.addExceptedProteins = function() {
-	jPost.addObjectsToArray( jPost.KEY_EXCEPTED_PROTEINS, 'protein_check' );
-}
-
-// add picked up datasets
-jPost.addPickedUpDatasets = function() {
-	jPost.addObjectsToArray( jPost.KEY_PICKED_UP_DATASETS, 'dataset_check' );
-}
-
-// add excepted datasets
-jPost.addExceptedDatasets = function() {
-	jPost.addObjectsToArray( jPost.KEY_EXCEPTED_DATASETS, 'dataset_check' );
-}
-
-// remove picked up proteins
-jPost.removePickedUpProteins = function() {
-	jPost.removeObjectsFromArray( jPost.KEY_PICKED_UP_PROTEINS, 'protein_check-pp' );
-}
-
-// remove excepted proteins
-jPost.removeExceptedProteins = function() {
-	jPost.removeObjectsFromArray( jPost.KEY_EXCEPTED_PROTEINS, 'protein_check-ep' );
-}
-
-// remove picked up datasets
-jPost.removePickedUpDatasets = function() {
-	jPost.removeObjectsFromArray( jPost.KEY_PICKED_UP_DATASETS, 'dataset_check-pd' );
-}
-
-// remove excepted datasets
-jPost.removeExceptedDatasets = function() {
-	jPost.removeObjectsFromArray( jPost.KEY_EXCEPTED_DATASETS, 'dataset_check-ed' );
-}
-
-//show panel
-jPost.showPanel = function( panel ) {
-	$( '.top-panel' ).css( 'display', 'none' );
-	$( '.menu-item' ).removeClass( 'active' );
-	$( '#' + panel ).css( 'display', 'block' );
-	$( '#' + panel + '-menu-item' ).addClass( 'active' );
-}
-
-*/

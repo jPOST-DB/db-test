@@ -2,7 +2,7 @@
 
 <html>
   <head>
-    <title>jPost</title>
+    <title>jPOST</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="css/select2.min.css" rel="stylesheet">
@@ -21,6 +21,23 @@
     </script>
   </head>
   <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">jPOST</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar">
+          <ul id="header-menu" class="nav navbar-nav">
+          </ul>
+        </div>
+      </div>
+    </nav>
     <nav class="navbar navbar-inverse">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -30,7 +47,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="index.html">jPost</a>
+          <a class="navbar-brand" href="index.html">jPOST</a>
         </div>
         <div class="collapse navbar-collapse" id="navbar">
           <ul id="header-menu" class="nav navbar-nav">
@@ -86,6 +103,16 @@
       </div>
     </div>
 
+    <script>
+        $( '#select-slice' ).change(
+        	function() {
+        		if( $( '#select-slice' ).val() == '' ) {
+        			$( '#dialog-slice' ).modal( 'show' );
+        		}
+        	}
+        );
+    </script>
 
   </body>
+
 </html>
