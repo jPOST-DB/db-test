@@ -511,10 +511,15 @@ jPost.addSlice = function() {
 
 // create slice
 jPost.createSlice = function( name ) {
+	var label = name.replace( ' ', '_' );
+	label = label.replace( '.', 'dot' );
+	label = label.replace( '#', 'sharp' );
+
 	jPost.slices.push(
 		{
 			name: name,
-			dataset: []
+			dataset: [],
+			label: label
 		}
 	);
 
@@ -533,12 +538,12 @@ jPost.refreshSlices = function( activePanel ) {
 			var panelTab = null;
 
 			if( slice.name == activePanel ) {
-				itemTab = '<li class="nav-item active"><a class="nav-link bg-primary" href="#slice-' + slice.name + '" data-toggle="tab">' + slice.name + '</a></li>'
-				panelTab = '<div class="tab-pane fade in active table-panel" id="slice-' + slice.name + '"></div>';
+				itemTab = '<li class="nav-item active"><a class="nav-link bg-primary" href="#slice-' + slice.label + '" data-toggle="tab">' + slice.name + '</a></li>'
+				panelTab = '<div class="tab-pane fade in active table-panel" id="slice-' + slice.label + '"></div>';
 			}
 			else {
-				itemTab = '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-' + slice.name + '" data-toggle="tab">' + slice.name + '</a></li>';
-				panelTab = '<div class="tab-pane fade" id="slice-' + slice.name + '"></div>';
+				itemTab = '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-' + slice.label + '" data-toggle="tab">' + slice.name + '</a></li>';
+				panelTab = '<div class="tab-pane fade" id="slice-' + slice.label + '"></div>';
 			}
 
 			$( '#slice-tab' ).append( itemTab );
@@ -551,23 +556,31 @@ jPost.refreshSlices = function( activePanel ) {
 	var tab = '<li class="nav-item"><a href="javascript:jPost.createNewSlice()">+</a></li>';
 	$( '#slice-tab' ).append( tab );
 
+	jPost.saveSlices();
+}
+
+// save slices
+jPost.saveSlices = function() {
 	var json = JSON.stringify( jPost.slices );
 	localStorage.setItem( 'jPOST-slices', json );
+
+	console.log( json );
 }
 
 // add slice tables
 jPost.addSliceTables = function( name ) {
 	jPost.tables[ name ] = [];
 	var slice = jPost.getSlice( name );
+	var label = slice.label;
 
-	$( '#slice-' + name ).append( '<ul class="nav nav-tabs" id="slice-' + name + '-tab"></ul>' );
-	$( '#slice-' + name ).append( '<div class="tab-content" id="slice-' + name + '-panels"></div>' );
+	$( '#slice-' + label ).append( '<ul class="nav nav-tabs" id="slice-' + label + '-tab"></ul>' );
+	$( '#slice-' + label ).append( '<div class="tab-content" id="slice-' + label + '-panels"></div>' );
 
-	$( '#slice-' + name + '-tab' ).append( '<li class="nav-item active"><a class="nav-link bg-primary" href="#slice-dataset-' + name + '-panel" data-toggle="tab">Dataset</a></li>' );
-	$( '#slice-' + name + '-panels' ).append( '<div class="tab-pane fade in active table-panel" id="slice-dataset-' + name + '-panel"></div>' );
-	$( '#slice-dataset-' + name + '-panel' ).append( '<table id="table-slice-dataset-' + name + '"></table>' );
+	$( '#slice-' + label + '-tab' ).append( '<li class="nav-item active"><a class="nav-link bg-primary" href="#slice-dataset-' + label + '-panel" data-toggle="tab">Dataset</a></li>' );
+	$( '#slice-' + label + '-panels' ).append( '<div class="tab-pane fade in active table-panel" id="slice-dataset-' + label + '-panel"></div>' );
+	$( '#slice-dataset-' + label + '-panel' ).append( '<table id="table-slice-dataset-' + label + '"></table>' );
 	jPost.createDbTable(
-		'slice-dataset-' + name,
+		'slice-dataset-' + label,
 		name,
 		'datasets.php',
 		function( params ) {
@@ -580,11 +593,11 @@ jPost.addSliceTables = function( name ) {
 		}
 	);
 
-	$( '#slice-' + name + '-tab' ).append( '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-protein-' + name + '-panel" data-toggle="tab">Protein</a></li>' );
-	$( '#slice-' + name + '-panels' ).append( '<div class="tab-pane fade table-panel" id="slice-protein-' + name + '-panel"></div>' );
-	$( '#slice-protein-' + name + '-panel' ).append( '<table id="table-slice-protein-' + name + '"></table>' );
+	$( '#slice-' + label + '-tab' ).append( '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-protein-' + label + '-panel" data-toggle="tab">Protein</a></li>' );
+	$( '#slice-' + label + '-panels' ).append( '<div class="tab-pane fade table-panel" id="slice-protein-' + label + '-panel"></div>' );
+	$( '#slice-protein-' + label + '-panel' ).append( '<table id="table-slice-protein-' + label + '"></table>' );
 	jPost.createDbTable(
-		'slice-protein-' + name,
+		'slice-protein-' + label,
 		name,
 		'proteins.php',
 		function( params ) {
@@ -598,7 +611,7 @@ jPost.addSliceTables = function( name ) {
 	);
 
 	var tag = '<button onclick="jPost.deleteSlice( ' + "'" + name + "'" + ' )" class="btn">Delete Slice</button>';
-	$( '#slice-' + name + '-panels' ).append( tag );
+	$( '#slice-' + label + '-panels' ).append( tag );
 }
 
 // get slice
@@ -690,9 +703,7 @@ jPost.setSliceInfo = function( slice, datasets ) {
 	);
 
 	jPost.updateTables( slice.name );
-
-	var json = JSON.stringify( jPost.slices );
-	localStorage.setItem( 'jPOST-slices', json );
+	jPost.saveSlices();
 }
 
 // delete slice
