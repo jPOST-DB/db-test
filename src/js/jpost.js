@@ -724,7 +724,7 @@ jPost.deleteSlice = function( name ) {
 	}
 }
 
-// compare slices
+//compare slices
 jPost.compareSlices = function() {
 	var name1 = $( '#select-comparison-slice1' ).val();
 	var name2 = $( '#select-comparison-slice2' ).val();
@@ -740,12 +740,20 @@ jPost.compareSlices = function() {
 		return;
 	}
 
+	var parameters = 'method=sc&valid=eb&dataset1=' + encodeURIComponent( slice1.dataset.join( ' ' ) )
+				   + '&dataset2=' + encodeURIComponent( slice2.dataset.join( ' ' ) );
+
+/*
 	var tag = '<togostanza-group_comp method="sc" valid="eb" '
 		    + 'dataset1="' + slice1.dataset.join( ' ' ) + '" '
 		    + 'dataset2="' + slice2.dataset.join( ' ' ) + '"></togostanza-group_comp>';
 
 	$( '#comparison-result' ).html( '' );
 	$( '#comparison-result' ).html( tag );
+*/
+	$( '#comparison-result' ).load(
+		'pages/compare.php?' + parameters
+	);
 }
 
 
