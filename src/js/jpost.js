@@ -58,7 +58,6 @@ jPost.addPanel = function( panel ) {
 				var json = localStorage.getItem( 'jPOST-slices' );
 				if( json != null ) {
 					jPost.slices = JSON.parse( json );
-					console.log( jPost.slices );
 					jPost.refreshSlices( -1 );
 					jPost.updateSliceSelection( -1 );
 				}
@@ -563,8 +562,6 @@ jPost.refreshSlices = function( activePanel ) {
 jPost.saveSlices = function() {
 	var json = JSON.stringify( jPost.slices );
 	localStorage.setItem( 'jPOST-slices', json );
-
-	console.log( json );
 }
 
 // add slice tables
@@ -742,6 +739,23 @@ jPost.compareSlices = function() {
 
 	var parameters = 'method=sc&valid=eb&dataset1=' + encodeURIComponent( slice1.dataset.join( ' ' ) )
 				   + '&dataset2=' + encodeURIComponent( slice2.dataset.join( ' ' ) );
+	var url = 'pages/compare.php?' + parameters;
+
+	var tag = '<iframe id="compare-result" src="' + url + '" frameborder="0" width="100%" height="800"></iframe>';
+	$( '#comparison-result' ).html( tag );
+
+/*
+	$( '#compare-result' ).on(
+		'load',
+		function() {
+			try {
+				$(this).height( this.contentWindow.document.documentElement.scrollHeight );
+			}
+			catch( e ) {
+			}
+		}
+	).trigger( 'load' );
+*/
 
 /*
 	var tag = '<togostanza-group_comp method="sc" valid="eb" '
@@ -751,9 +765,7 @@ jPost.compareSlices = function() {
 	$( '#comparison-result' ).html( '' );
 	$( '#comparison-result' ).html( tag );
 */
-	$( '#comparison-result' ).load(
-		'pages/compare.php?' + parameters
-	);
+
 }
 
 
