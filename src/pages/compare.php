@@ -18,18 +18,9 @@
 <html>
   <head>
     <title>jPOST</title>
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
-    <link href="../css/jquery.dataTables.min.css" rel="stylesheet">
-    <link href="../css/select2.min.css" rel="stylesheet">
-    <link href="../css/jpost.css" rel="stylesheet">
-
-    <link href="http://db-dev.jpostdb.org/ts/stanza/group_comp/" rel="import">
-
-    <script src="../js/jquery-3.1.1.min.js"></script>
-	<script src="../js/bootstrap.min.js"></script>
-    <script src="../js/jquery.dataTables.min.js"></script>
-    <script src="../js/select2.full.min.js"></script>
-    <script src="../js/jpost.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script src="/ts/stanza/assets/components/webcomponentsjs/webcomponents.min.js"></script>
+    <link href="/ts/stanza/group_comp/" rel="import">
   </head>
   <body>
     <togostanza-group_comp method="<?php echo $method ?>" valid="<?php echo $valid ?>"
