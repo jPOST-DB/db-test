@@ -14,22 +14,13 @@ $result = null;
 
 if( $method == 'table' ) {
 	$result = new TableInfo();
-	$result->setName( 'protein' );
-	$result->setTitle( 'Protein' );
+	$result->setName( 'peptide' );
+	$result->setTitle( 'Peptide' );
 	$result->setUrl( basename( __FILE__ ) );
 
 	$column = new ColumnInfo();
-	$column->setName( 'checkbox' );
-	$column->setTitle(  "<input type=\"checkbox\" id=\"check-protein-$name\" onchange=\"jPost.toggleCheckboxes('check-protein-$name')\">" );
-	$column->setSortable( false );
-	$column->setSearchable( false );
-	$column->setAlign( 'center' );
-	$column->setWidth( 50 );
-	$result->addColumn( $column );
-
-	$column = new ColumnInfo();
 	$column->setName( 'full_name' );
-	$column->setTitle( 'Full Name' );
+	$column->setTitle( 'Protein Name' );
 	$column->setSortable( true );
 	$column->setSearchable( true );
 	$column->setAlign( 'left' );
@@ -46,12 +37,12 @@ if( $method == 'table' ) {
 	$result->addColumn( $column );
 
 	$column = new ColumnInfo();
-	$column->setName( 'length' );
-	$column->setTitle( 'Length' );
+	$column->setName( 'peptide_label' );
+	$column->setTitle( 'Sequence' );
 	$column->setSortable( true );
-	$column->setSearchable( false );
-	$column->setAlign( 'right' );
-	$column->setWidth( 150 );
+	$column->setSearchable( true );
+	$column->setAlign( 'left' );
+	$column->setWidth( 350 );
 	$result->addColumn( $column );
 }
 else if( $method == 'list' ) {
@@ -61,7 +52,7 @@ else if( $method == 'list' ) {
 	$result->setDrawNumber( intval( $draw ) );
 
 	$params = array();
-	$params[ 'columns' ] = 'count( distinct ?mnemonic ) as ?count';
+	$params[ 'columns' ] = 'count( distinct ?peptide ) as ?count';
 
 	if( $category == null || $category == '' ) {
 		$sparqlResult = Sparql::callSparql( $params, 'filter' );
@@ -78,26 +69,19 @@ else if( $method == 'list' ) {
 
 	$sparqlResult = Sparql::callSparql( $params, 'filter' );
 
-	$params[ 'columns' ] = 'distinct ?protein ?full_name ?mnemonic strlen( ?sequence ) as ?length ';
+	$params[ 'columns' ] = 'distinct ?peptide ?full_name ?mnemonic ?peptide_label  ';
 	PageTools::setPageInfo( $params );
 
 	$sparqlResult = Sparql::callSparql( $params, 'filter' );
 
 	foreach( $sparqlResult as $row ) {
 		$mnemonic = $row[ 'mnemonic' ];
-		$fullName = $row[ 'full_name' ];
-		$protein = $row[ 'protein' ];
-		$row[ 'checkbox' ] = "<input type=\"checkbox\" class=\"check-protein-$name\" name=\"protein[]\" value=\"$mnemonic\">";
-		$row[ 'full_name' ] = "<a href=\"javascript:jPost.openProtein( '$mnemonic', '$category'  )\">$fullName</a>";
-		$row[ 'mnemonic' ] = "<a href=\"$protein\" target=\"_blank\">$mnemonic</a>";
-
 		$result->addData( $row );
 	}
 }
 
 
 echo json_encode( $result );
-
 
 
 ?>

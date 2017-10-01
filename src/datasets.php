@@ -96,6 +96,7 @@ else if( $method == 'list' ) {
 	foreach( $sparqlResult as $row ) {
 		$datasetId = $row[ 'dataset_id' ];
 		$row[ 'checkbox' ] = "<input type=\"checkbox\" class=\"check-dataset-$name\" name=\"dataset[]\" value=\"$datasetId\">";
+		$row[ 'dataset_id' ] = "<a href=\"javascript:jPost.openDataset( '$datasetId', '$category' )\">$datasetId</a>";
 		$result->addData( $row );
 	}
 }

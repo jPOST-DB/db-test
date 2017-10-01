@@ -43,9 +43,30 @@ class PageTools {
 			}
 		}
 
+		$keyword = self::getParameter( 'keyword' );
+		if( $keyword != null ) {
+			$keywords = array();
+			$strings = explode( ' ', $keyword );
+			foreach( $strings as $string ) {
+				$sting = trim( $string );
+				if( $string != '' ) {
+					array_push( $keywords, $string );
+				}
+			}
+
+			if( count( $keywords ) > 0 ) {
+				$params[ 'keywords' ] = $keywords;
+			}
+		}
+
 		$datasets = self::getObjects( 'dataset', 'datasets', 'dataset', false );
 		if( $datasets != null ) {
 			$params[ 'datasets' ] = $datasets;
+		}
+
+		$datasets = self::getObjects( 'protein', 'proteins', 'protein', false );
+		if( $datasets != null ) {
+			$params[ 'proteins' ] = $datasets;
 		}
 
 		$excludedDatasets = self::getObjects( 'excludedDataset', 'datasets', 'dataset', true );
@@ -77,11 +98,16 @@ class PageTools {
 	public static function getFilterValues( $values ) {
 		$string = '';
 
-		foreach( $values as $value ) {
-			if( $string != '' ) {
-				$string = $string . ', ';
+		if( is_array( $values ) ) {
+			foreach( $values as $value ) {
+				if( $string != '' ) {
+					$string = $string . ', ';
+				}
+				$string = $string . '"'. $value . '"';
 			}
-			$string = $string . '"' . $value . '"';
+		}
+		else {
+			$string = '"' . $values . '"';
 		}
 
 		return $string;
@@ -125,6 +151,16 @@ class PageTools {
 		}
 
 		return $objects;
+	}
+
+	/**
+     * gets HTML string
+	 */
+	public static function getHtml( $parameters, $template ) {
+		$smarty = new Smarty();
+		$smarty->assign( $parameters );
+		$html = $smarty->fetch( __DIR__ . '/../templates/html/' . $template . '.html.tpl' );
+		return $html;
 	}
 }
 

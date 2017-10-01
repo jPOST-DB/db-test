@@ -20,6 +20,9 @@ SELECT {$columns} WHERE {
     values ?dataset { {$datasets} }
 {/if}
 
+{if isset($proteins)}
+    values ?protein { {$proteins} }
+{/if}
 
     ?dataset a jpo:Dataset ;
 {if ( strpos( $columns, "dataset" ) != false && isset( $modification ) ) || isset( $psm ) || strpos( $columns, "psm" ) != false }
@@ -39,7 +42,7 @@ SELECT {$columns} WHERE {
     ?psm dct:identifier ?psm_id .
 {/if}
 
-{if strpos( $columns, "project" ) != false || isset( $keyword )}
+{if strpos( $columns, "project" ) != false || isset( $keywords )}
     ?project jpo:hasDataset ?dataset ;
         dct:identifier ?project_id ;
         dct:title ?project_title ;
@@ -91,7 +94,7 @@ SELECT {$columns} WHERE {
 {/if}
 
 
-{if strpos( $columns, "mnemonic" ) != false || isset( $excludedProteins ) }
+{if strpos( $columns, "mnemonic" ) != false || isset( $excludedProteins ) || isset( $keywords ) }
     ?dataset jpo:hasProtein ?dataprotein .
 
     ?dataprotein
@@ -113,6 +116,51 @@ SELECT {$columns} WHERE {
         uniprot:mass ?mass ;
         rdf:value ?sequence .
 {/if}
+
+{if strpos( $columns, "peptide" ) != false}
+    ?dataset jpo:hasPeptide ?peptide .
+
+    ?peptide a jpo:Peptide ;
+        rdfs:label ?peptide_label .
+
+    ?dataprotein jpo:hasPeptideEvidence/jpo:hasPeptide ?peptide .
+{/if}
+
+{if isset( $keywords ) }
+    filter(
+      ( true
+        {foreach $keywords as $keyword}
+            && contains( lcase( str( ?project_title ) ), lcase( '{$keyword}' ) )
+        {/foreach}
+      )
+
+      ||
+
+      ( true
+        {foreach $keywords as $keyword}
+            && contains( lcase( str( ?project_desc ) ), lcase( '{$keyword}' ) )
+        {/foreach}
+      )
+
+      ||
+
+      ( true
+        {foreach $keywords as $keyword}
+            && contains( lcase( str( ?full_name ) ), lcase( '{$keyword}' ) )
+        {/foreach}
+      )
+
+      ||
+
+      ( true
+        {foreach $keywords as $keyword}
+            && contains( lcase( str( ?mnemonic ) ), lcase( '{$keyword}' ) )
+        {/foreach}
+      )
+    ).
+{/if}
+
+
 }
 
 {if isset( $order )}

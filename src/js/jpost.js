@@ -291,6 +291,12 @@ jPost.createSearchPage = function() {
 			jPost.updateTables( '' );
 		}
 	);
+
+	$( '#keyword' ).change(
+		function() {
+			jPost.updateTables( '' );
+		}
+	);
 }
 
 // create table
@@ -607,6 +613,40 @@ jPost.addSliceTables = function( name ) {
 		}
 	);
 
+	$( '#slice-' + label + '-tab' ).append( '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-peptide-' + label + '-panel" data-toggle="tab">Peptide</a></li>' );
+	$( '#slice-' + label + '-panels' ).append( '<div class="tab-pane fade table-panel" id="slice-peptide-' + label + '-panel"></div>' );
+	$( '#slice-peptide-' + label + '-panel' ).append( '<table id="table-slice-peptide-' + label + '"></table>' );
+	jPost.createDbTable(
+		'slice-peptide-' + label,
+		name,
+		'peptides.php',
+		function( params ) {
+			for( key in slice ) {
+				params[ key ] = slice[ key ];
+			}
+			if( slice.dataset.length == 0 ) {
+				params[ 'dataset' ] = [ 'empty dataset' ];
+			}
+		}
+	);
+/*
+	$( '#slice-' + label + '-tab' ).append( '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-psm-' + label + '-panel" data-toggle="tab">PSM</a></li>' );
+	$( '#slice-' + label + '-panels' ).append( '<div class="tab-pane fade table-panel" id="slice-psm-' + label + '-panel"></div>' );
+	$( '#slice-psm-' + label + '-panel' ).append( '<table id="table-slice-psm-' + label + '"></table>' );
+	jPost.createDbTable(
+		'slice-psm-' + label,
+		name,
+		'psms.php',
+		function( params ) {
+			for( key in slice ) {
+				params[ key ] = slice[ key ];
+			}
+			if( slice.dataset.length == 0 ) {
+				params[ 'dataset' ] = [ 'empty dataset' ];
+			}
+		}
+	);
+*/
 	var tag = '<button onclick="jPost.deleteSlice( ' + "'" + name + "'" + ' )" class="btn">Delete Slice</button>';
 	$( '#slice-' + label + '-panels' ).append( tag );
 }
@@ -739,33 +779,19 @@ jPost.compareSlices = function() {
 
 	var parameters = 'method=sc&valid=eb&dataset1=' + encodeURIComponent( slice1.dataset.join( ' ' ) )
 				   + '&dataset2=' + encodeURIComponent( slice2.dataset.join( ' ' ) );
-	var url = 'pages/compare.php?' + parameters;
-
-	var tag = '<iframe id="compare-result" src="' + url + '" frameborder="0" width="100%" height="800"></iframe>';
-	$( '#comparison-result' ).html( tag );
-
-/*
-	$( '#compare-result' ).on(
-		'load',
-		function() {
-			try {
-				$(this).height( this.contentWindow.document.documentElement.scrollHeight );
-			}
-			catch( e ) {
-			}
-		}
-	).trigger( 'load' );
-*/
-
-/*
-	var tag = '<togostanza-group_comp method="sc" valid="eb" '
-		    + 'dataset1="' + slice1.dataset.join( ' ' ) + '" '
-		    + 'dataset2="' + slice2.dataset.join( ' ' ) + '"></togostanza-group_comp>';
-
-	$( '#comparison-result' ).html( '' );
-	$( '#comparison-result' ).html( tag );
-*/
-
+	var url = 'stanza/compare.php?' + parameters;
+	$( '#comparison-result' ).load( url );
 }
 
 
+//open dataset
+jPost.openDataset = function( datasetId, category ) {
+	var url = 'dataset.php?dataset=' + datasetId;
+	window.open( url );
+}
+
+//open protein
+jPost.openProtein = function( mnemonic, category ) {
+	var url = 'protein.php?protein=' + mnemonic;
+	window.open( url );
+}
