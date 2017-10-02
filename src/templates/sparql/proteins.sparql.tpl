@@ -19,10 +19,8 @@ SELECT ?protein WHERE {
     ?dataprotein a jpo:Protein ;
         jpo:hasDatabaseSequence ?protein .
 
-    ?protein uniprot:mnemonic ?mnemonic .
-
 {if isset( $proteins )}
-    filter( str( ?mnemonic ) in ( {$proteins} ) ).
+    filter( strafter( str( ?protein ), 'http://purl.uniprot.org/uniprot/' ) in ( {$proteins} ) ).
 {/if}
 
 }

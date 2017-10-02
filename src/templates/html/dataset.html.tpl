@@ -5,6 +5,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script src="/ts/stanza/assets/components/webcomponentsjs/webcomponents.min.js"></script>
+    <link href="/ts/stanza/kegg_global_map/" rel="import">
+    <link href="/ts/stanza/dataset_chromosome/" rel="import">
+    <link href="/ts/stanza/protein_evidence/" rel="import">
   </head>
   <body>
     <div class="container">
@@ -31,6 +34,12 @@
           <td>{$project_date}</td>
         </tr>
       </table>
+      <h2>KEGG Global Pathway</h2>
+      <togostanza-kegg_global_map dataset="{$dataset_id}"></togostanza-kegg_global_map>
+      <h2>Chromosome Info.</h2>
+      <togostanza-dataset_chromosome dataset="{$dataset_id}"></togostanza-dataset_chromosome>
+      <h2>Protein Existence</h2>
+      <togostanza-protein_evidence dataset="{$dataset_id}"></togostanza-protein_evidence>
     <div class="component">
   </body>
 </html>

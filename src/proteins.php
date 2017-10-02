@@ -87,8 +87,10 @@ else if( $method == 'list' ) {
 		$mnemonic = $row[ 'mnemonic' ];
 		$fullName = $row[ 'full_name' ];
 		$protein = $row[ 'protein' ];
-		$row[ 'checkbox' ] = "<input type=\"checkbox\" class=\"check-protein-$name\" name=\"protein[]\" value=\"$mnemonic\">";
-		$row[ 'full_name' ] = "<a href=\"javascript:jPost.openProtein( '$mnemonic', '$category'  )\">$fullName</a>";
+		$proteinId = end( explode( '/', $protein ) );
+
+		$row[ 'checkbox' ] = "<input type=\"checkbox\" class=\"check-protein-$name\" name=\"protein[]\" value=\"$proteinId\">";
+		$row[ 'full_name' ] = "<a href=\"javascript:jPost.openProtein( '$proteinId', '$category'  )\">$fullName</a>";
 		$row[ 'mnemonic' ] = "<a href=\"$protein\" target=\"_blank\">$mnemonic</a>";
 
 		$result->addData( $row );
