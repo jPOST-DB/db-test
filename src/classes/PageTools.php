@@ -64,9 +64,9 @@ class PageTools {
 			$params[ 'datasets' ] = $datasets;
 		}
 
-		$datasets = self::getObjects( 'protein', 'proteins', 'protein', false );
-		if( $datasets != null ) {
-			$params[ 'proteins' ] = $datasets;
+		$proteins = self::getObjects( 'protein', 'proteins', 'protein', false );
+		if( $proteins != null ) {
+			$params[ 'proteins' ] = $proteins;
 		}
 
 		$excludedDatasets = self::getObjects( 'excludedDataset', 'datasets', 'dataset', true );

@@ -18,14 +18,16 @@ if( $method == 'table' ) {
 	$result->setTitle( 'DataSet' );
 	$result->setUrl( basename( __FILE__ ) );
 
-	$column = new ColumnInfo();
-	$column->setName( 'checkbox' );
-	$column->setTitle(  "<input type=\"checkbox\" id=\"check-dataset-$name\" onchange=\"jPost.toggleCheckboxes('check-dataset-$name')\">" );
-	$column->setSortable( false );
-	$column->setSearchable( false );
-	$column->setAlign( 'center' );
-	$column->setWidth( 50 );
-	$result->addColumn( $column );
+	if( $category != '<details>') {
+	    $column = new ColumnInfo();
+		$column->setName( 'checkbox' );
+		$column->setTitle(  "<input type=\"checkbox\" id=\"check-dataset-$name\" onchange=\"jPost.toggleCheckboxes('check-dataset-$name')\">" );
+		$column->setSortable( false );
+		$column->setSearchable( false );
+		$column->setAlign( 'center' );
+		$column->setWidth( 50 );
+		$result->addColumn( $column );
+	}
 
 	$column = new ColumnInfo();
 	$column->setName( 'dataset_id' );

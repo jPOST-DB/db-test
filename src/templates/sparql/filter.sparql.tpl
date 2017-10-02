@@ -94,7 +94,7 @@ SELECT {$columns} WHERE {
 {/if}
 
 
-{if strpos( $columns, "mnemonic" ) != false || isset( $excludedProteins ) || isset( $keywords ) }
+{if strpos( $columns, "mnemonic" ) != false || isset( $excludedProteins ) || isset( $keywords ) || isset( $proteins ) }
     ?dataset jpo:hasProtein ?dataprotein .
 
     ?dataprotein
@@ -155,6 +155,14 @@ SELECT {$columns} WHERE {
       ( true
         {foreach $keywords as $keyword}
             && contains( lcase( str( ?mnemonic ) ), lcase( '{$keyword}' ) )
+        {/foreach}
+      )
+
+      ||
+
+      ( true
+        {foreach $keywords as $keyword}
+            && contains( lcase( str( ?protein ) ), lcase( '{$keyword}' ) )
         {/foreach}
       )
     ).
