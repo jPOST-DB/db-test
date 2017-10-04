@@ -359,7 +359,7 @@ jPost.createDbTable = function( name, category, url, fnParams ) {
 						data.name = name;
 						data.category = category;
 					},
-					scrollX: ( totalWidth > 800 ),
+//					scrollX: true,
 					columns: columns,
 					order: [[ order, 'asc']]
 				}
@@ -629,24 +629,7 @@ jPost.addSliceTables = function( name ) {
 			}
 		}
 	);
-/*
-	$( '#slice-' + label + '-tab' ).append( '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-psm-' + label + '-panel" data-toggle="tab">PSM</a></li>' );
-	$( '#slice-' + label + '-panels' ).append( '<div class="tab-pane fade table-panel" id="slice-psm-' + label + '-panel"></div>' );
-	$( '#slice-psm-' + label + '-panel' ).append( '<table id="table-slice-psm-' + label + '"></table>' );
-	jPost.createDbTable(
-		'slice-psm-' + label,
-		name,
-		'psms.php',
-		function( params ) {
-			for( key in slice ) {
-				params[ key ] = slice[ key ];
-			}
-			if( slice.dataset.length == 0 ) {
-				params[ 'dataset' ] = [ 'empty dataset' ];
-			}
-		}
-	);
-*/
+
 	var tag = '<button onclick="jPost.deleteSlice( ' + "'" + name + "'" + ' )" class="btn">Delete Slice</button>';
 	$( '#slice-' + label + '-panels' ).append( tag );
 }
@@ -791,7 +774,13 @@ jPost.openDataset = function( datasetId, category ) {
 }
 
 //open protein
-jPost.openProtein = function( mnemonic, category ) {
-	var url = 'protein.php?protein=' + mnemonic;
+jPost.openProtein = function( proteinId, category ) {
+	var url = 'protein.php?protein=' + proteinId;
+	window.open( url );
+}
+
+//open peptide
+jPost.openPeptide = function( peptideId, category ) {
+	var url = 'peptide.php?peptide=' + peptideId;
 	window.open( url );
 }

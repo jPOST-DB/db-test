@@ -69,7 +69,7 @@
 	);
 	jPost.createDbTable(
 		'peptide',
-		'<details>',
+		'<dataset>',
 		'peptides.php',
 		function( params ) {
 			params[ 'dataset' ] = '{$dataset_id}';
@@ -79,11 +79,3 @@
 
   </body>
 </html>
-
-
-<!--
-
-<form>
-    <input type="hidden" value="{$dataset}" id="item_object">
-</form>
--->

@@ -21,7 +21,11 @@
         </tr>
         <tr>
           <th>Mnemonic</th>
-          <td><a href="{$protein}" target="_blank">{$mnemonic}</a></td>
+          <td>{$mnemonic}</td>
+        </tr>
+        <tr>
+          <th>Uniprot ID</th>
+          <td><a href="{$protein}" target="_blank">{$protein_id}</a></td>
         </tr>
         <tr>
           <th>Mass</th>
@@ -62,7 +66,7 @@
 	  );
       jPost.createDbTable(
           'peptide',
-          '<details>',
+          '<protein>',
           'peptides.php',
           function( params ) {
             params[ 'protein' ] = '{$protein_id}';

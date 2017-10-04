@@ -12,7 +12,9 @@ PREFIX uniprot: <http://purl.uniprot.org/core/>
 PREFIX tax: <http://identifiers.org/taxonomy/>
 PREFIX owl: <http://www.geneontology.org/formats/oboInOwl#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX faldo: <http://biohackathon.org/resource/faldo#>
 PREFIX : <http://rdf.jpostdb.org/entry/>
+
 
 
 SELECT {$columns} WHERE {
@@ -24,23 +26,58 @@ SELECT {$columns} WHERE {
     values ?protein { {$proteins} }
 {/if}
 
+{if isset($peptides)}
+    values ?peptide { {$peptides} }
+{/if}
+
     ?dataset a jpo:Dataset ;
-{if ( strpos( $columns, "dataset" ) != false && isset( $modification ) ) || isset( $psm ) || strpos( $columns, "psm" ) != false }
+{if ( strpos( $columns, "dataset" ) != false && isset( $modification ) ) || isset( $psm ) }
         jpo:hasPeptide/jpo:hasPsm ?psm ;
 {/if}
 
         dct:identifier ?dataset_id ;
         jpo:hasProfile ?profile .
 
+{if strpos( $columns, "psm" )}
+    ?psm dct:identifier ?psm_id ;
+        rdfs:label ?psm_label .
+    optional {
+        ?psm sio:000552 ?mascot_expected_value_parameter .
+        ?mascot_expected_value_parameter a ms:1001172 ;
+            sio:000300 ?mascot_ev .
+    }
+    optional {
+        ?psm sio:000552 ?mascot_score_parameter .
+        ?mascot_score_parameter a ms:1001171 ;
+            sio:000300 ?mascot_score .
+    }
+    optional {
+        ?psm sio:000552 ?jpost_expected_value_parameter .
+        ?jpost_expected_value_parameter a jpo:JpostExpectedValue ;
+            sio:000300 ?jpost_ev .
+    }
+    optional {
+        ?psm sio:000552 ?charge_parameter .
+        ?charge_parameter a ms:1000041 ;
+            sio:000300 ?charge .
+    }
+    optional {
+        ?psm sio:000552 ?calculated_mass_parameter .
+        ?calculated_mass_parameter a jpo:CalculatedMassToCharge ;
+            sio:000300 ?cal_mass .
+    }
+    optional {
+        ?psm sio:000552 ?experimental_mass_parameter .
+        ?experimental_mass_parameter a jpo:ExperimentalMassToCharge ;
+            sio:000300 ?exp_mass .
+    }
+{/if}
+
 {if isset( $excludedDatasets )}
     filter( $dataset not in ( {$excludedDatasets} ) ).
 {/if}
 
     ?profile jpo:hasSample ?sample .
-
-{if strpos( $columns, "psm" )}
-    ?psm dct:identifier ?psm_id .
-{/if}
 
 {if strpos( $columns, "project" ) != false || isset( $keywords )}
     ?project jpo:hasDataset ?dataset ;
@@ -94,15 +131,14 @@ SELECT {$columns} WHERE {
 {/if}
 
 
-{if strpos( $columns, "mnemonic" ) != false || isset( $excludedProteins ) || isset( $keywords ) || isset( $proteins ) }
+{if strpos( $columns, "protein" ) != false || isset( $excludedProteins ) || isset( $keywords ) || isset( $proteins ) }
     ?dataset jpo:hasProtein ?dataprotein .
 
     ?dataprotein
-  {if isset( $psm ) || isset( $modification )}
+  {if isset( $psm ) || isset( $modification ) || strpos( $columns, 'psm' ) != false}
         jpo:hasPeptideEvidence/jpo:hasPeptide/jpo:hasPsm ?psm ;
   {/if}
         jpo:hasDatabaseSequence ?protein .
-
 
     ?protein uniprot:recommendedName/uniprot:fullName ?full_name ;
         uniprot:mnemonic ?mnemonic ;
@@ -117,14 +153,29 @@ SELECT {$columns} WHERE {
         rdf:value ?sequence .
 {/if}
 
-{if strpos( $columns, "peptide" ) != false}
+{if strpos( $columns, "peptide" ) != false || isset($peptides)}
     ?dataset jpo:hasPeptide ?peptide .
+  {if strpos( $columns, "psm" ) != false}
+    ?peptide jpo:hasPsm ?psm .
+  {/if}
 
     ?peptide a jpo:Peptide ;
-        rdfs:label ?peptide_label .
+        rdfs:label ?peptide_label ;
+        dct:identifier ?peptide_id .
 
     ?dataprotein jpo:hasPeptideEvidence/jpo:hasPeptide ?peptide .
+
 {/if}
+
+{if strpos( $columns, "peptide_location" ) != false}
+    ?evidence a jpo:PeptideEvidence ;
+        jpo:hasPeptide ?peptide ;
+        faldo:location ?peptide_location .
+
+    ?peptide_location faldo:begin/faldo:position ?peptide_begin ;
+        faldo:end/faldo:position ?peptide_end .
+{/if}
+
 
 {if isset( $keywords ) }
     filter(

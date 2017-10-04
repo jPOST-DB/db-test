@@ -19,22 +19,53 @@ if( $method == 'table' ) {
 	$result->setUrl( basename( __FILE__ ) );
 
 	$column = new ColumnInfo();
-	$column->setName( 'full_name' );
-	$column->setTitle( 'Protein Name' );
-	$column->setSortable( true );
-	$column->setSearchable( true );
-	$column->setAlign( 'left' );
-	$column->setWidth( 300 );
-	$result->addColumn( $column );
-
-	$column = new ColumnInfo();
-	$column->setName( 'mnemonic' );
-	$column->setTitle( 'Mnemonic' );
+	$column->setName( 'peptide_id' );
+	$column->setTitle( 'Peptide ID' );
 	$column->setSortable( true );
 	$column->setSearchable( true );
 	$column->setAlign( 'left' );
 	$column->setWidth( 150 );
 	$result->addColumn( $column );
+
+	if( $category != '<dataset>' ) {
+		$column = new ColumnInfo();
+		$column->setName( 'dataset_id' );
+		$column->setTitle( 'Dataset ID' );
+		$column->setSortable( true );
+		$column->setSearchable( true );
+		$column->setAlign( 'left' );
+		$column->setWidth( 150 );
+		$result->addColumn( $column );
+	}
+
+	if( $category != '<protein>') {
+		$column = new ColumnInfo();
+		$column->setName( 'full_name' );
+		$column->setTitle( 'Protein Name' );
+		$column->setSortable( true );
+		$column->setSearchable( true );
+		$column->setAlign( 'left' );
+		$column->setWidth( 250 );
+		$result->addColumn( $column );
+
+		$column = new ColumnInfo();
+		$column->setName( 'mnemonic' );
+		$column->setTitle( 'Mnemonic' );
+		$column->setSortable( true );
+		$column->setSearchable( true );
+		$column->setAlign( 'left' );
+		$column->setWidth( 150 );
+		$result->addColumn( $column );
+
+		$column = new ColumnInfo();
+		$column->setName( 'protein_id' );
+		$column->setTitle( 'Uniprot ID' );
+		$column->setSortable( true );
+		$column->setSearchable( true );
+		$column->setAlign( 'left' );
+		$column->setWidth( 150 );
+		$result->addColumn( $column );
+	}
 
 	$column = new ColumnInfo();
 	$column->setName( 'peptide_label' );
@@ -42,7 +73,7 @@ if( $method == 'table' ) {
 	$column->setSortable( true );
 	$column->setSearchable( true );
 	$column->setAlign( 'left' );
-	$column->setWidth( 350 );
+	$column->setWidth( 200 );
 	$result->addColumn( $column );
 }
 else if( $method == 'list' ) {
@@ -53,29 +84,29 @@ else if( $method == 'list' ) {
 
 	$params = array();
 	$params[ 'columns' ] = 'count( distinct ?peptide ) as ?count';
-
-	if( $category == null || $category == '' ) {
-		$sparqlResult = Sparql::callSparql( $params, 'filter' );
-		$result->setRecordsTotal( intval( $sparqlResult[ 0 ][ 'count' ] ) );
-	}
-
 	PageTools::setFilterInfo( $params );
 
 	$sparqlResult = Sparql::callSparql( $params, 'filter' );
+	$result->setRecordsTotal( intval( $sparqlResult[ 0 ][ 'count' ] ) );
 	$result->setRecordsFiltered( intval( $sparqlResult[ 0 ][ 'count' ] ) );
-	if( $category != null && $category != '' ) {
-		$result->setRecordsTotal( intval( $sparqlResult[ 0 ][ 'count' ] ) );
-	}
 
-	$sparqlResult = Sparql::callSparql( $params, 'filter' );
 
-	$params[ 'columns' ] = 'distinct ?peptide ?full_name ?mnemonic ?peptide_label  ';
+	$params[ 'columns' ] = 'distinct ?dataset_id ?protein ?peptide ?peptide_id ?full_name ?mnemonic ?peptide_label ';
 	PageTools::setPageInfo( $params );
 
 	$sparqlResult = Sparql::callSparql( $params, 'filter' );
 
 	foreach( $sparqlResult as $row ) {
-		$mnemonic = $row[ 'mnemonic' ];
+		$datasetId = $row[ 'dataset_id' ];
+		$fullName = $row[ 'full_name' ];
+		$protein = $row[ 'protein' ];
+		$proteinId = end( explode( '/', $protein ) );
+		$peptideId = $row[ 'peptide_id' ];
+
+		$row[ 'peptide_id' ] = "<a href=\"javascript:jPost.openPeptide( '$peptideId', '$category' )\">$peptideId</a>";
+		$row[ 'dataset_id' ] = "<a href=\"javascript:jPost.openDataset( '$datasetId', '$category' )\">$datasetId</a>";
+		$row[ 'full_name' ] = "<a href=\"javascript:jPost.openProtein( '$proteinId', '$category'  )\">$fullName</a>";
+		$row[ 'protein_id' ] = "<a href=\"$protein\" target=\"_blank\">$proteinId</a>";
 		$result->addData( $row );
 	}
 }

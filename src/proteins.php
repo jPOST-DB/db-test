@@ -48,6 +48,15 @@ if( $method == 'table' ) {
 	$result->addColumn( $column );
 
 	$column = new ColumnInfo();
+	$column->setName( 'protein_id' );
+	$column->setTitle( 'Uniprot ID' );
+	$column->setSortable( true );
+	$column->setSearchable( true );
+	$column->setAlign( 'left' );
+	$column->setWidth( 150 );
+	$result->addColumn( $column );
+
+	$column = new ColumnInfo();
 	$column->setName( 'length' );
 	$column->setTitle( 'Length' );
 	$column->setSortable( true );
@@ -86,14 +95,13 @@ else if( $method == 'list' ) {
 	$sparqlResult = Sparql::callSparql( $params, 'filter' );
 
 	foreach( $sparqlResult as $row ) {
-		$mnemonic = $row[ 'mnemonic' ];
 		$fullName = $row[ 'full_name' ];
 		$protein = $row[ 'protein' ];
 		$proteinId = end( explode( '/', $protein ) );
 
 		$row[ 'checkbox' ] = "<input type=\"checkbox\" class=\"check-protein-$name\" name=\"protein[]\" value=\"$proteinId\">";
 		$row[ 'full_name' ] = "<a href=\"javascript:jPost.openProtein( '$proteinId', '$category'  )\">$fullName</a>";
-		$row[ 'mnemonic' ] = "<a href=\"$protein\" target=\"_blank\">$mnemonic</a>";
+		$row[ 'protein_id' ] = "<a href=\"$protein\" target=\"_blank\">$proteinId</a>";
 
 		$result->addData( $row );
 	}
