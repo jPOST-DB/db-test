@@ -72,7 +72,7 @@ else if( $method == 'list' ) {
 	$result->setDrawNumber( intval( $draw ) );
 
 	$params = array();
-	$params[ 'columns' ] = 'count( distinct ?mnemonic ) as ?count';
+	$params[ 'columns' ] = 'count( distinct ?protein ) as ?count';
 
 	if( $category == null || $category == '' ) {
 		$sparqlResult = Sparql::callSparql( $params, 'filter' );

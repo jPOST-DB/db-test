@@ -79,7 +79,7 @@ SELECT {$columns} WHERE {
 
     ?profile jpo:hasSample ?sample .
 
-{if strpos( $columns, "project" ) != false || isset( $keywords )}
+{if strpos( $columns, "project" ) != false || isset( $datasetKeywords )}
     ?project jpo:hasDataset ?dataset ;
         dct:identifier ?project_id ;
         dct:title ?project_title ;
@@ -131,7 +131,7 @@ SELECT {$columns} WHERE {
 {/if}
 
 
-{if strpos( $columns, "protein" ) != false || isset( $excludedProteins ) || isset( $keywords ) || isset( $proteins ) }
+{if strpos( $columns, "protein" ) != false || isset( $excludedProteins ) || isset( $proteinKeywords ) || isset( $proteins ) }
     ?dataset jpo:hasProtein ?dataprotein .
 
     ?dataprotein
@@ -177,10 +177,10 @@ SELECT {$columns} WHERE {
 {/if}
 
 
-{if isset( $keywords ) }
+{if isset($datasetKeywords) }
     filter(
       ( true
-        {foreach $keywords as $keyword}
+        {foreach $datasetKeywords as $keyword}
             && contains( lcase( str( ?project_title ) ), lcase( '{$keyword}' ) )
         {/foreach}
       )
@@ -188,15 +188,16 @@ SELECT {$columns} WHERE {
       ||
 
       ( true
-        {foreach $keywords as $keyword}
+        {foreach $datasetKeywords as $keyword}
             && contains( lcase( str( ?project_desc ) ), lcase( '{$keyword}' ) )
         {/foreach}
       )
-
-      ||
-
+    ).
+{/if}
+{if isset($proteinKeywords) }
+    filter(
       ( true
-        {foreach $keywords as $keyword}
+        {foreach $proteinKeywords as $keyword}
             && contains( lcase( str( ?full_name ) ), lcase( '{$keyword}' ) )
         {/foreach}
       )
@@ -204,7 +205,7 @@ SELECT {$columns} WHERE {
       ||
 
       ( true
-        {foreach $keywords as $keyword}
+        {foreach $proteinKeywords as $keyword}
             && contains( lcase( str( ?mnemonic ) ), lcase( '{$keyword}' ) )
         {/foreach}
       )
@@ -212,13 +213,12 @@ SELECT {$columns} WHERE {
       ||
 
       ( true
-        {foreach $keywords as $keyword}
+        {foreach $proteinKeywords as $keyword}
             && contains( lcase( str( ?protein ) ), lcase( '{$keyword}' ) )
         {/foreach}
       )
     ).
 {/if}
-
 
 }
 

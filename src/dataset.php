@@ -9,7 +9,17 @@ PageTools::setFilterInfo( $params );
 $params[ 'columns' ] = 'distinct ?dataset_id ?project_id ?project_title ?project_date ?project_desc';
 $result = Sparql::callSparql( $params, 'filter' );
 
-$params = array();
+$slice = PageTools::getParameter( 'slice' );
+if( $slice == null ) {
+	$slice = '<details>';
+}
+
+$result = Sparql::callSparql( $sparqlParams, 'filter' );
+
+$params = array(
+		'slice' => $slice
+);
+
 foreach( $result as $row) {
 	foreach( $row as $key => $value ) {
 		$params[ $key ] = $value;

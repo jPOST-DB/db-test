@@ -43,19 +43,22 @@ class PageTools {
 			}
 		}
 
-		$keyword = self::getParameter( 'keyword' );
-		if( $keyword != null ) {
-			$keywords = array();
-			$strings = explode( ' ', $keyword );
-			foreach( $strings as $string ) {
-				$sting = trim( $string );
-				if( $string != '' ) {
-					array_push( $keywords, $string );
+		$keywordNames = array( 'datasetKeywords', 'proteinKeywords' );
+		foreach( $keywordNames as $keyword ) {
+			$value = self::getParameter( $keyword );
+			if( $value != null ) {
+				$keywords = array();
+				$strings = explode( ' ', $value );
+				foreach( $strings as $string ) {
+					$sting = trim( $string );
+					if( $string != '' ) {
+						array_push( $keywords, $string );
+					}
 				}
-			}
 
-			if( count( $keywords ) > 0 ) {
-				$params[ 'keywords' ] = $keywords;
+				if( count( $keywords ) > 0 ) {
+					$params[ $keyword ] = $keywords;
+				}
 			}
 		}
 
@@ -102,6 +105,10 @@ class PageTools {
 	 */
 	public static function getFilterValues( $values ) {
 		$string = '';
+
+		if( !is_array( $values ) ) {
+			$values = explode( ' ', $values );
+		}
 
 		if( is_array( $values ) ) {
 			foreach( $values as $value ) {

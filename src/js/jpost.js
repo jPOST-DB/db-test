@@ -292,7 +292,12 @@ jPost.createSearchPage = function() {
 		}
 	);
 
-	$( '#keyword' ).change(
+	$( '#datasetKeywords' ).change(
+		function() {
+			jPost.updateTables( '' );
+		}
+	);
+	$( '#proteinKeywords' ).change(
 		function() {
 			jPost.updateTables( '' );
 		}
@@ -387,7 +392,7 @@ jPost.updateTables = function( category ) {
 jPost.getFilterParameters = function( data ) {
 	var array = [
 		'species', 'tissue', 'disease', 'celltype', 'modification', 'instrument', 'instrumentMode',
-		'keyword', 'excludedDataset', 'excludedProtein'
+		'datasetKeywords', 'proteinKeywords', 'excludedDataset', 'excludedProtein'
 	];
 	array.forEach(
 		function( element ) {
@@ -766,21 +771,43 @@ jPost.compareSlices = function() {
 	$( '#comparison-result' ).load( url );
 }
 
+// add slice
+jPost.addSlice = function( name, datasets ) {
+	jPost.createSlice( name );
+	var slice = jPost.getSlice( name );
+	slice.dataset = datasets.split( ' ' );
+}
 
 //open dataset
 jPost.openDataset = function( datasetId, category ) {
-	var url = 'dataset.php?dataset=' + datasetId;
+	var slice = jPost.getSlice( category );
+	var parameters = 'dataset=' + datasetId;
+	if( slice != null ) {
+		parameters = parameters + '&slice=' + category;
+	}
+	var url = 'dataset.php?' + parameters;
+
 	window.open( url );
 }
 
 //open protein
 jPost.openProtein = function( proteinId, category ) {
-	var url = 'protein.php?protein=' + proteinId;
+	var slice = jPost.getSlice( category );
+	var parameters = 'protein=' + proteinId;
+	if( slice != null ) {
+		parameters = parameters + '&slice=' + category + '&dataset=' + encodeURIComponent( slice.dataset.join( ' ' ) );
+	}
+	var url = 'protein.php?' + parameters;
 	window.open( url );
 }
 
 //open peptide
 jPost.openPeptide = function( peptideId, category ) {
-	var url = 'peptide.php?peptide=' + peptideId;
+	var slice = jPost.getSlice( category );
+	var parameters = 'peptide=' + peptideId;
+	if( slice != null ) {
+		parameters = parameters + '&slice=' + category + '&dataset=' + encodeURIComponent( slice.dataset.join( ' ' ) );
+	}
+	var url = 'peptide.php?' + parameters;
 	window.open( url );
 }

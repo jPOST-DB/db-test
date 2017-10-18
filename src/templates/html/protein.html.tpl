@@ -10,6 +10,11 @@
     <script src="js/jquery.dataTables.min.js"></script>
     <script src="js/stanza.js"></script>
     <script src="js/jpost.js"></script>
+{if isset( $dataset)}
+    <script>
+        jPost.addSlice( '{$slice}', '{$dataset}' );
+    </script>
+{/if}
   </head>
   <body>
     <div class="container">
@@ -58,18 +63,31 @@
     <script>
       jPost.createDbTable(
           'dataset',
-          '<details>',
+          '{$slice}',
           'datasets.php',
           function( params ) {
-            params[ 'protein' ] = '{$protein_id}';
+              var slice = jPost.getSlice( '{$slice}' );
+              console.log( slice );
+              if( slice != null ) {
+                  for( key in slice ) {
+                      params[ key ] = slice[ key ];
+                  }
+              }
+              params[ 'protein' ] = '{$protein_id}';
           }
 	  );
       jPost.createDbTable(
           'peptide',
-          '<protein>',
+          '{$slice}',
           'peptides.php',
           function( params ) {
-            params[ 'protein' ] = '{$protein_id}';
+              var slice = jPost.getSlice( '{$slice}' );
+              if( slice != null ) {
+                  for( key in slice ) {
+                      params[ key ] = slice[ key ];
+                  }
+              }
+              params[ 'protein' ] = '{$protein_id}';
           }
 	  );
     </script>
