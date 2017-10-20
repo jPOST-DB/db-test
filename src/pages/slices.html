@@ -4,3 +4,87 @@
 
 <div class="tab-content" id="slice-panels">
 </div>
+
+<div style="margin: 10pt">
+    <button id="export-all-slices" class='btn' onclick="jPost.importSlices()">Import Slices</button>
+    <button id="export-all-slices" class='btn' onclick="jPost.exportSlice( '' )">Export all slices</button>
+</div>
+
+
+<div id="dialog-rename-slice" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content" style="padding: 15px;">
+      <div class="modal-header">
+        <h4 class="modal-title">Rename Slice</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group row">
+          <label class="col-2">Slice Name</label>
+          <input type="text" id="dialog-rename-slice-new-name" name="name" required class="form-control col-10" value="">
+          <input type="hidden" id="dialog-rename-slice-old-name">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onClick="jPost.renameSlice()">Rename</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <input type="file" id="upload_slices" name="file" style="display: none;"></input>
+
+ <script>
+     $( '#upload_slices' ).on(
+         'change',
+         function( event ) {
+            var file = $(this).prop('files')[ 0 ];
+            var reader = new FileReader();
+            reader.readAsText( file );
+            reader.onload = function( event ) {
+                var result = JSON.parse( event.target.result );
+
+                var flag = true;
+
+                for( var i = 0; i < result.length && flag; i++ ) {
+                	var slice = result[ i ];
+                	jPost.slices.forEach(
+                		function( tmp ) {
+                			if( slice.name == tmp.name ) {
+                				if( flag ) {
+                    				flag = false;
+                    				alert( 'Slice "' + slice.name + '" already exists.' );
+                				}
+                			}
+                		}
+                	);
+                }
+
+                if( !flag ) {
+                	return;
+                }
+
+                result.forEach(
+                	function( slice ) {
+                		jPost.slices.push( slice );
+                	}
+                );
+
+            	var activeName = '';
+            	if( jPost.slices.length > 0 ) {
+            		if( jPost.slice != null ) {
+            			activeName = jPost.slice.name;
+            		}
+            		else {
+            			activeName = jPost.slices[ 0 ].name;
+            		}
+            	}
+
+				jPost.refreshSlices( activeName );
+				jPost.updateSliceSelection( -1 );
+
+				$( '#upload_slices' ).val( '' );
+            }
+         }
+     );
+ </script>

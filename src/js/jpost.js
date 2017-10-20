@@ -57,8 +57,12 @@ jPost.addPanel = function( panel ) {
 			if( jPost.pageCounter == 0 ) {
 				var json = localStorage.getItem( 'jPOST-slices' );
 				if( json != null ) {
+					var activeName = '';
 					jPost.slices = JSON.parse( json );
-					jPost.refreshSlices( -1 );
+					if( jPost.slices.length > 0 ) {
+						activeName = jPost.alices[ 0 ];
+					}
+					jPost.refreshSlices( activeName );
 					jPost.updateSliceSelection( -1 );
 				}
 			}
@@ -491,7 +495,7 @@ jPost.openSliceDialog = function() {
 }
 
 // add slice
-jPost.addSlice = function() {
+jPost.addNewSlice = function() {
 	var found = false;
 	var name = $( '#dialog-slice-name' ).val();
 	jPost.slices.forEach(
@@ -524,6 +528,8 @@ jPost.createSlice = function( name ) {
 	var label = name.replace( ' ', '_' );
 	label = label.replace( '.', 'dot' );
 	label = label.replace( '#', 'sharp' );
+
+	var length = jPost.slices.length;
 
 	jPost.slices.push(
 		{
@@ -635,7 +641,9 @@ jPost.addSliceTables = function( name ) {
 		}
 	);
 
-	var tag = '<button onclick="jPost.deleteSlice( ' + "'" + name + "'" + ' )" class="btn">Delete Slice</button>';
+	var tag = ' <button onclick="jPost.exportSlice( ' + "'" + name + "'" + ' )" class="btn">Export Slice</button>'
+			+ ' <button onclick="jPost.openRenameDialog( ' + "'" + name + "'" + ' )" class="btn">Rename Slice</button>'
+			+ ' <button onclick="jPost.deleteSlice( ' + "'" + name + "'" + ' )" class="btn">Delete Slice</button>';
 	$( '#slice-' + label + '-panels' ).append( tag );
 }
 
@@ -810,4 +818,73 @@ jPost.openPeptide = function( peptideId, category ) {
 	}
 	var url = 'peptide.php?' + parameters;
 	window.open( url );
+}
+
+// export slice
+jPost.exportSlice = function( name ) {
+	var array = [];
+	var filename = '';
+
+	if( name == null || name == '' ) {
+		filename = 'all.json';
+		array = jPost.slices;
+	}
+	else {
+		filename = name + '.json';
+		var slice = jPost.getSlice( name );
+		if( slice != null ) {
+			array.push( slice );
+		}
+	}
+
+	if( array.length == 0 ) {
+		alert( 'There are no slices.' );
+	}
+	else {
+		var json = JSON.stringify( array );
+		var file = new File(
+				[ json ],
+				filename,
+				{
+					type: 'text/plain;charset=utf-8'
+				}
+		);
+		saveAs( file );
+
+	}
+}
+
+// open rename dialog
+jPost.openRenameDialog = function( name ) {
+	$( '#dialog-rename-slice-old-name' ).val( name );
+	$( '#dialog-rename-slice-new-name' ).val( name );
+	$( '#dialog-rename-slice' ).modal( 'show' );
+}
+
+// rename slice
+jPost.renameSlice = function() {
+	var oldName = $( '#dialog-rename-slice-old-name' ).val();
+	var newName = $( '#dialog-rename-slice-new-name' ).val();
+
+	if( oldName == newName ) {
+		return;
+	}
+
+	var slice = jPost.getSlice( newName );
+	if( slice != null ) {
+		alert( 'Slice "' + newName + '" already exists.' );
+		return;
+	}
+
+	slice = jPost.getSlice( oldName );
+	slice.name = newName;
+	$( '#dialog-rename-slice' ).modal( 'hide' );
+
+	jPost.updateSliceSelection( -1 );
+	jPost.refreshSlices( newName );
+}
+
+// import slices
+jPost.importSlices = function() {
+	 $( '#upload_slices' ).click();
 }
