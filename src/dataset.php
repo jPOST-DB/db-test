@@ -14,7 +14,7 @@ if( $slice == null ) {
 	$slice = '<details>';
 }
 
-$result = Sparql::callSparql( $sparqlParams, 'filter' );
+$result = Sparql::callSparql( $params, 'filter' );
 
 $params = array(
 		'slice' => $slice

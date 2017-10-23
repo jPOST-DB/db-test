@@ -140,9 +140,12 @@ SELECT {$columns} WHERE {
   {/if}
         jpo:hasDatabaseSequence ?protein .
 
-    ?protein uniprot:recommendedName/uniprot:fullName ?full_name ;
-        uniprot:mnemonic ?mnemonic ;
+    ?protein uniprot:mnemonic ?mnemonic ;
         uniprot:sequence ?sequenceObject .
+
+    optional {
+        ?protein uniprot:recommendedName/uniprot:fullName ?full_name .
+    }
 
   {if isset( $excludedProteins )}
       filter( ?protein not in ( {$excludedProteins} ) ).

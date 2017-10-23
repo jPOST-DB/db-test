@@ -83,7 +83,7 @@ else if( $method == 'list' ) {
 	$result->setDrawNumber( intval( $draw ) );
 
 	$params = array();
-	$params[ 'columns' ] = 'count( distinct ?peptide ) as ?count';
+	$params[ 'columns' ] = '( count( distinct ?peptide ) as ?count )';
 	PageTools::setFilterInfo( $params );
 
 	$sparqlResult = Sparql::callSparql( $params, 'filter' );

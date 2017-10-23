@@ -60,7 +60,7 @@ jPost.addPanel = function( panel ) {
 					var activeName = '';
 					jPost.slices = JSON.parse( json );
 					if( jPost.slices.length > 0 ) {
-						activeName = jPost.alices[ 0 ];
+						activeName = jPost.slices[ 0 ];
 					}
 					jPost.refreshSlices( activeName );
 					jPost.updateSliceSelection( -1 );
@@ -772,10 +772,9 @@ jPost.compareSlices = function() {
 	if( slice1 == null || slice2 == null ) {
 		return;
 	}
-
-	var parameters = 'method=sc&valid=eb&dataset1=' + encodeURIComponent( slice1.dataset.join( ' ' ) )
-				   + '&dataset2=' + encodeURIComponent( slice2.dataset.join( ' ' ) );
-	var url = 'stanza/compare.php?' + parameters;
+	var parameters = 'stanza=group_comp&service=tsv1&method=sc&valid=eb&dataset1=' + encodeURIComponent( slice1.dataset.join( ' ' ) )
+					+ '&dataset2=' + encodeURIComponent( slice2.dataset.join( ' ' ) );
+	var url = 'load_stanza.php?' + parameters;
 	$( '#comparison-result' ).load( url );
 }
 

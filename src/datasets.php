@@ -72,7 +72,7 @@ else if( $method == 'list' ) {
 	$result->setDrawNumber( intval( $draw ) );
 
 	$params = array();
-	$params[ 'columns' ] = 'count( distinct ?dataset ) as ?count';
+	$params[ 'columns' ] = '( count( distinct ?dataset ) as ?count )';
 
 	if( $category == null || $category == '' ) {
 		$sparqlResult = Sparql::callSparql( $params, 'filter' );

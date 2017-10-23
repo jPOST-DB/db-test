@@ -106,7 +106,7 @@ else if( $method == 'list' ) {
 	$result->setDrawNumber( intval( $draw ) );
 
 	$params = array();
-	$params[ 'columns' ] = 'count( distinct ?psm ) as ?count';
+	$params[ 'columns' ] = '( count( distinct ?psm ) as ?count )';
 	PageTools::setFilterInfo( $params );
 
 	$sparqlResult = Sparql::callSparql( $params, 'filter' );

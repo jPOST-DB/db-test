@@ -6,7 +6,7 @@ require_once( __DIR__ . '/libs/smarty/Smarty.class.php' );
 
 $params = array();
 PageTools::setFilterInfo( $params );
-$params[ 'columns' ] = 'distinct ?dataset_id ?protein ?peptide ?peptide_id ?full_name ?mnemonic ?peptide_label ';
+$params[ 'columns' ] = 'distinct ?peptide ?dataset_id ?protein ?peptide_id ?full_name ?mnemonic ?peptide_label ';
 
 
 $slice = PageTools::getParameter( 'slice' );
@@ -14,7 +14,7 @@ if( $slice == null ) {
 	$slice = '<details>';
 }
 
-$result = Sparql::callSparql( $sparqlParams, 'filter' );
+$result = Sparql::callSparql( $params, 'filter' );
 
 $params = array(
 	'slice' => $slice

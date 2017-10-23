@@ -72,7 +72,7 @@ else if( $method == 'list' ) {
 	$result->setDrawNumber( intval( $draw ) );
 
 	$params = array();
-	$params[ 'columns' ] = 'count( distinct ?protein ) as ?count';
+	$params[ 'columns' ] = '( count( distinct ?protein ) as ?count )';
 
 	if( $category == null || $category == '' ) {
 		$sparqlResult = Sparql::callSparql( $params, 'filter' );
@@ -89,13 +89,16 @@ else if( $method == 'list' ) {
 
 	$sparqlResult = Sparql::callSparql( $params, 'filter' );
 
-	$params[ 'columns' ] = 'distinct ?protein ?full_name ?mnemonic strlen( ?sequence ) as ?length ';
+	$params[ 'columns' ] = 'distinct ?protein ?full_name ?mnemonic ( strlen( ?sequence ) as ?length )';
 	PageTools::setPageInfo( $params );
 
 	$sparqlResult = Sparql::callSparql( $params, 'filter' );
 
 	foreach( $sparqlResult as $row ) {
 		$fullName = $row[ 'full_name' ];
+		if( $fullName == '' || $fullName == null ) {
+			$fullName = 'n/a';
+		}
 		$protein = $row[ 'protein' ];
 		$proteinId = end( explode( '/', $protein ) );
 
