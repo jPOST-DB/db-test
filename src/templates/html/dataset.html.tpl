@@ -43,11 +43,13 @@
       </table>
 
       <h3>KEGG Global Pathway</h3>
-      <div data-stanza="http://db-dev.jpostdb.org/stanza/js_stanza_wrapper" data-stanza-server="http://db-dev.jpostdb.org/ts/stanza" data-stanza-name="kegg_global_map" data-stanza-options="dataset={$dataset_id}"></div>
+      <div id="kegg_global_map"></div>
+
       <h3>Chromosome Info.</h3>
-      <div data-stanza="http://db-dev.jpostdb.org/stanza/js_stanza_wrapper" data-stanza-server="http://db-dev.jpostdb.org/ts/stanza" data-stanza-name="dataset_chromosome" data-stanza-options="dataset={$dataset_id}"></div>
+      <div id="dataset_chromosome"></div>
+
       <h3>Protein Existence</h3>
-      <div data-stanza="http://db-dev.jpostdb.org/stanza/js_stanza_wrapper" data-stanza-server="http://db-dev.jpostdb.org/ts/stanza" data-stanza-name="protein_evidence" data-stanza-options="dataset={$dataset_id}"></div>
+      <div id="protein_evidence"></div>
 
       <ul class="nav nav-tabs">
         <li class="nav-item active"><a class="nav-link bg-primary" href="#protein-table-tab"  data-toggle="tab">Protein</a></li>
@@ -80,6 +82,18 @@
 			params[ 'dataset' ] = '{$dataset_id}';
 		}
 	);
+
+	  var parameters = 'stanza=kegg_global_map&service=tsv1&dataset={$dataset_id}';
+	  var url = 'load_stanza.php?' + parameters;
+	  $( '#kegg_global_map' ).load( url );
+
+	  var parameters = 'stanza=dataset_chromosome&service=tsv1&dataset={$dataset_id}';
+	  var url = 'load_stanza.php?' + parameters;
+	  $( '#dataset_chromosome' ).load( url );
+
+	  var parameters = 'stanza=protein_evidence&service=tsv1&dataset={$dataset_id}';
+	  var url = 'load_stanza.php?' + parameters;
+	  $( '#protein_evidence' ).load( url );
 </script>
 
   </body>

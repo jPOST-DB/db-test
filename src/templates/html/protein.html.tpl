@@ -91,11 +91,11 @@
           }
 	  );
 
-	  var parameters = 'stanza=protein_browser&service=tsv1&uniprot={$protein_id}&&dataset=' + encodeURIComponent( '{$dataset}' );
+	  var parameters = 'stanza=protein_browser&service=tsv1&uniprot={$protein_id}&dataset=' + encodeURIComponent( '{$dataset}' );
 	  var url = 'load_stanza.php?' + parameters;
 	  $( '#protein_browser' ).load( url );
 
-	  parameters = 'stanza=proteoform_browser&service=tsv1&uniprot={$protein_id}&&dataset=' + encodeURIComponent( '{$dataset}' );
+	  parameters = 'stanza=proteoform_browser&service=tsv1&uniprot={$protein_id}&dataset=' + encodeURIComponent( '{$dataset}' );
 	  url = 'load_stanza.php?' + parameters;
 	  $( '#proteoforms' ).load( url );
 
