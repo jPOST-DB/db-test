@@ -43,9 +43,10 @@
       </table>
 
       <h3>Protein Browser</h3>
-      <div data-stanza="http://db-dev.jpostdb.org/stanza/js_stanza_wrapper" data-stanza-server="http://db-dev.jpostdb.org/ts/stanza" data-stanza-name="protein_browser" data-stanza-options="uniprot={$protein_id}"></div>
+      <div id="protein_browser"></div>
+
       <h3>Proteoforms</h3>
-      <div data-stanza="http://db-dev.jpostdb.org/stanza/js_stanza_wrapper" data-stanza-server="http://db-dev.jpostdb.org/ts/stanza" data-stanza-name="proteoform_browser" data-stanza-options="uniprot={$protein_id}"></div>
+      <div id="proteoforms"></div>
 
       <ul class="nav nav-tabs">
         <li class="nav-item active"><a class="nav-link bg-primary" href="#dataset-table-tab"  data-toggle="tab">Dataset</a></li>
@@ -67,7 +68,6 @@
           'datasets.php',
           function( params ) {
               var slice = jPost.getSlice( '{$slice}' );
-              console.log( slice );
               if( slice != null ) {
                   for( key in slice ) {
                       params[ key ] = slice[ key ];
@@ -90,6 +90,16 @@
               params[ 'protein' ] = '{$protein_id}';
           }
 	  );
+
+	  var parameters = 'stanza=protein_browser&service=tsv1&uniprot={$protein_id}&&dataset=' + encodeURIComponent( '{$dataset}' );
+	  var url = 'load_stanza.php?' + parameters;
+	  $( '#protein_browser' ).load( url );
+
+	  parameters = 'stanza=proteoform_browser&service=tsv1&uniprot={$protein_id}&&dataset=' + encodeURIComponent( '{$dataset}' );
+	  url = 'load_stanza.php?' + parameters;
+	  $( '#proteoforms' ).load( url );
+
+
     </script>
   </body>
 </html>
