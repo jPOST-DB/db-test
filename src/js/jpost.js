@@ -641,6 +641,8 @@ jPost.addSliceTables = function( name ) {
 		}
 	);
 
+	$( '#slice-' + label + '-panels' ).append( '<div id="slice-' + label + '-stanza">hogehoeg</div>' );
+
 	var tag = ' <button onclick="jPost.exportSlice( ' + "'" + name + "'" + ' )" class="btn">Export Slice</button>'
 			+ ' <button onclick="jPost.openRenameDialog( ' + "'" + name + "'" + ' )" class="btn">Rename Slice</button>'
 			+ ' <button onclick="jPost.deleteSlice( ' + "'" + name + "'" + ' )" class="btn">Delete Slice</button>';
@@ -773,9 +775,9 @@ jPost.compareSlices = function() {
 		return;
 	}
 	var parameters = 'stanza=group_comp&service=tsv1&method=sc&valid=eb&dataset1=' + encodeURIComponent( slice1.dataset.join( ' ' ) )
-					+ '&dataset2=' + encodeURIComponent( slice2.dataset.join( ' ' ) );
-	var url = 'load_stanza.php?' + parameters;
-	$( '#comparison-result' ).load( url );
+	+ '&dataset2=' + encodeURIComponent( slice2.dataset.join( ' ' ) );
+var url = 'load_stanza.php?' + parameters;
+$( '#comparison-result' ).load( url );
 }
 
 // add slice

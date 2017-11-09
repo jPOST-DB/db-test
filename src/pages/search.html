@@ -63,6 +63,11 @@
   </div>
 </div>
 
+<div>
+  <div id="species-chart"></div>
+  <div id="disease-chart"></div>
+</div>
+
 <ul class="nav nav-tabs">
   <li class="nav-item active"><a class="nav-link bg-primary" href="#table-tab-dataset" data-toggle="tab">Dataset</a></li>
   <li class="nav-item"><a class="nav-link bg-primary" href="#table-tab-protein"  data-toggle="tab">Protein</a></li>
@@ -105,4 +110,12 @@
        		jPost.getFilterParameters( data );
         }
     );
+
+	var parameters = 'stanza=database_pie_chart&type=species';
+	var url = 'load_stanza.php?' + parameters;
+	$( '#species-chart' ).load( url );
+
+	parameters = 'stanza=database_pie_chart&type=disease';
+	url = 'load_stanza.php?' + parameters;
+	$( '#disease-chart' ).load( url );
 </script>
