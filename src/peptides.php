@@ -50,7 +50,7 @@ if( $method == 'table' ) {
 
 		$column = new ColumnInfo();
 		$column->setName( 'mnemonic' );
-		$column->setTitle( 'Mnemonic' );
+		$column->setTitle( 'ID' );
 		$column->setSortable( true );
 		$column->setSearchable( true );
 		$column->setAlign( 'left' );
@@ -59,7 +59,7 @@ if( $method == 'table' ) {
 
 		$column = new ColumnInfo();
 		$column->setName( 'protein_id' );
-		$column->setTitle( 'Uniprot ID' );
+		$column->setTitle( 'Accession' );
 		$column->setSortable( true );
 		$column->setSearchable( true );
 		$column->setAlign( 'left' );

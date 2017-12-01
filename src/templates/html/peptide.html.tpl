@@ -1,22 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>{$peptide_id} - jPOST</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/jquery.dataTables.min.css" rel="stylesheet">
-    <script src="js/jquery-3.1.1.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.dataTables.min.js"></script>
-    <script src="js/stanza.js"></script>
-    <script src="js/jpost.js"></script>
-{if isset( $dataset)}
-    <script>
-        jPost.addSlice( '{$slice}', '{$dataset}' );
-    </script>
-{/if}
-  </head>
-  <body>
     <div class="container">
       <h2>Peptide: {$peptide_id}</h2>
       <table class="table table-striped">
@@ -30,15 +11,15 @@
           <td><a href="javascript:jPost.openDataset('{$dataset_id}', null)">{$dataset_id}</td>
         </tr>
         <tr>
-          <th>Protein</th>
+          <th>Protein Name</th>
           <td><a href="javascript:jPost.openProtein('{$protein_id}', null)">{$full_name}</td>
         </tr>
         <tr>
-          <th>Mnemonic</th>
+          <th>ID</th>
           <td>{$mnemonic}</td>
         </tr>
         <tr>
-          <th>Uniprot ID</th>
+          <th>Accession</th>
           <td><a href="{$protein}" target="_blank">{$protein_id}</a></td>
         </tr>
         <th>Sequence</th>
@@ -89,5 +70,3 @@
 		    }
 	    );
     </script>
-  </body>
-</html>

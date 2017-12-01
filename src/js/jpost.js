@@ -9,6 +9,8 @@ jPost.tables = [];
 jPost.slices = [];
 jPost.slice = null;
 jPost.datasets = null;
+jPost.loaded = [];
+jPost.species = [];
 
 //create page
 jPost.createPage = function() {
@@ -26,7 +28,29 @@ jPost.createPage = function() {
 			jPost.createPanels( data );
 		}
 	);
+
+        jPost.getSpecies();
 }
+
+// get species
+jPost.getSpecies = function() {
+    $.ajax(
+        {
+            url: 'species.php',
+            dataType: 'json'
+        }
+    ).then(
+        function( data ) {
+            
+            data.forEach( 
+                function( element ) {
+                    jPost.species[ element.dataset ] = element.species;
+                }
+            );
+        }
+    );
+}
+
 
 // create panels
 jPost.createPanels = function( data ) {
@@ -35,15 +59,49 @@ jPost.createPanels = function( data ) {
 		jPost.addPanel
 	);
 
-	if( data.length > 0 ) {
+	$( '#header-menu' ).append( '<li class="menu-item"><a href="javascript:jPost.showHelp()">Help</a></li>' );
+
+        var panel = jPost.addExtendedPanel();
+
+	if( panel == null && data.length > 0 ) {
 		var firstPanel = data[ 0 ];
 		jPost.showPanel( firstPanel.name );
 	}
+
 }
+
+jPost.addExtendedPanel = function() {
+    var url = new URL( window.location.href );
+    var dataset = url.searchParams.get( 'dataset' );
+    var protein = url.searchParams.get( 'protein' );
+    var peptide = url.searchParams.get( 'peptide' );
+
+    var panel = null;
+
+    if( dataset != null || protein != null || peptide != null ) {
+        $( '#panels' ).append( '<div id="panel-extended" class="top-panel"></div>' );
+        var params = window.location.search;
+
+        if( peptide != null ) {
+            $( '#panel-extended' ).load( 'peptide.php' + params );
+            panel = 'peptide';
+        }
+        else if( protein != null ) {
+            $( '#panel-extended' ).load( 'protein.php' + params );
+            panel = 'protein';
+        }
+        else if( dataset != null ) {
+            $( '#panel-extended' ).load( 'dataset.php' + params );
+            panel = 'dataset';
+        }
+    }
+    return panel;
+}
+
 
 // add panel
 jPost.addPanel = function( panel ) {
-	var tag = '<li id="menu-item-' + panel.name + '" class="menu-item"><a href="javascript:jPost.showPanel( '
+	var tag = '<li id="menu-item-' + panel.name + '" class="menu-item"><a id="tab-' + panel.name + '-link" href="javascript:jPost.showPanel( '
 			+ "'" + panel.name + "'" + ' )">' + panel.title + '</a></li>';
 	$( '#header-menu' ).append( tag );
 
@@ -54,7 +112,7 @@ jPost.addPanel = function( panel ) {
 		'pages/' + panel.name + '.html',
 		function() {
 			jPost.pageCounter = jPost.pageCounter - 1;
-			if( jPost.pageCounter == 0 ) {
+			if( panel.name == 'slices' ) {
 				var json = localStorage.getItem( 'jPOST-slices' );
 				if( json != null ) {
 					var activeName = '';
@@ -76,6 +134,17 @@ jPost.showPanel = function( panel ) {
 	$( '.menu-item' ).removeClass( 'active' );
 	$( '#panel-' + panel ).css( 'display', 'block' );
 	$( '#menu-item-' + panel ).addClass( 'active' );
+
+	if( panel == 'slices' ) {
+            jPost.slices.forEach( 
+                function( slice ) {
+                    var element = $( '#slice-' + slice.label );
+                    if( element.is( ':visible' ) ) {  
+			jPost.loadSliceStanza( slice.name );
+		    }
+		}
+	    );
+        }
 }
 
 //call sparql
@@ -146,7 +215,8 @@ jPost.createTagSelect = function( element ) {
 	element.css( 'display', 'inline' );
 	element.select2(
 		{
-			tags: true
+			tags: true,
+			width: '500px'
 		}
 	);
 }
@@ -308,8 +378,16 @@ jPost.createSearchPage = function() {
 	);
 }
 
+jPost.updating = [];
+
 // create table
 jPost.createDbTable = function( name, category, url, fnParams ) {
+        var index = jPost.updating.indexOf( name );
+        if( index >= 0 ) {
+            return;
+        }
+        jPost.updating.push( name );
+
 	$.ajax(
 		{
 			url: url,
@@ -379,6 +457,10 @@ jPost.createDbTable = function( name, category, url, fnParams ) {
 			else {
 				jPost.tables[ category ] = [ table ];
 			}
+
+                        index = jPost.updating.indexOf( name );
+                        jPost.updating.splice( index, 1 );
+                        
 		}
 	);
 }
@@ -523,11 +605,18 @@ jPost.addNewSlice = function() {
 	}
 }
 
+// create label
+jPost.getLabel = function( name ) {
+    var label = name.replace( ' ', '_' );
+    label = label.replace( '.', 'dot' );
+    label = label.replace( '#', 'sharp' );
+
+    return label;
+}
+
 // create slice
 jPost.createSlice = function( name ) {
-	var label = name.replace( ' ', '_' );
-	label = label.replace( '.', 'dot' );
-	label = label.replace( '#', 'sharp' );
+	var label = jPost.getLabel( name );
 
 	var length = jPost.slices.length;
 
@@ -546,39 +635,55 @@ jPost.createSlice = function( name ) {
 // refresh slice
 jPost.refreshSlices = function( activePanel ) {
 	$( '#slice-tab' ).html( '' );
-	$( '#slice-panels' ).html( '' )
+	$( '#slice-panels' ).html( '' );
+
+        jPost.loaded = [];
+
+        var slice = jPost.getSlice( activePanel );
+        if( jPost.slices.length > 0 && slice == null ) {
+            slice = jPost.slices[ 0 ];
+            activePanel = slice.name;
+        }
 
 	jPost.slices.forEach(
 		function( slice ) {
-			var itemTab = null;
-			var panelTab = null;
-
-			if( slice.name == activePanel ) {
-				itemTab = '<li class="nav-item active"><a class="nav-link bg-primary" href="#slice-' + slice.label + '" data-toggle="tab">' + slice.name + '</a></li>'
-				panelTab = '<div class="tab-pane fade in active table-panel" id="slice-' + slice.label + '"></div>';
-			}
-			else {
-				itemTab = '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-' + slice.label + '" data-toggle="tab">' + slice.name + '</a></li>';
-				panelTab = '<div class="tab-pane fade" id="slice-' + slice.label + '"></div>';
-			}
+			var itemTab = '<li class="nav-item"><a class="nav-link bg-primary slice-tab" id="slice-' + slice.label + '-link" href="#slice-' + slice.label + '" data-toggle="tab">' + slice.name + '</a></li>';
+			var panelTab = '<div class="tab-pane fade" id="slice-' + slice.label + '"></div>';
 
 			$( '#slice-tab' ).append( itemTab );
-			$( '#slice-panels' ).append( panelTab )
+			$( '#slice-panels' ).append( panelTab );
 
 			jPost.addSliceTables( slice.name );
 		}
 	);
 
+        $( '.slice-tab' ).on( 
+            'shown.bs.tab',
+            function( e ) {
+                var name = e.target.innerText;
+                jPost.loadSliceStanza( name );
+            }
+        );
+        if( slice != null ) {
+            $( '#slice-' + slice.label + '-link' ).tab( 'show' );
+        }
+
 	var tab = '<li class="nav-item"><a href="javascript:jPost.createNewSlice()">+</a></li>';
 	$( '#slice-tab' ).append( tab );
 
+        jPost.loadSliceStanza( activePanel );
 	jPost.saveSlices();
 }
 
 // save slices
 jPost.saveSlices = function() {
-	var json = JSON.stringify( jPost.slices );
-	localStorage.setItem( 'jPOST-slices', json );
+        if( jPost.slices.length > 0 ) {
+	    var json = JSON.stringify( jPost.slices );
+	    localStorage.setItem( 'jPOST-slices', json );
+        }
+        else {
+            localStorage.removeItem( 'jPOST-slices' );
+        }
 }
 
 // add slice tables
@@ -587,8 +692,12 @@ jPost.addSliceTables = function( name ) {
 	var slice = jPost.getSlice( name );
 	var label = slice.label;
 
+        $( '#slice-' + label ).append( '<div id="slice-' + label + '-buttons" style="margin-left: auto; text-align: right;"></div>' );
+
 	$( '#slice-' + label ).append( '<ul class="nav nav-tabs" id="slice-' + label + '-tab"></ul>' );
+
 	$( '#slice-' + label ).append( '<div class="tab-content" id="slice-' + label + '-panels"></div>' );
+
 
 	$( '#slice-' + label + '-tab' ).append( '<li class="nav-item active"><a class="nav-link bg-primary" href="#slice-dataset-' + label + '-panel" data-toggle="tab">Dataset</a></li>' );
 	$( '#slice-' + label + '-panels' ).append( '<div class="tab-pane fade in active table-panel" id="slice-dataset-' + label + '-panel"></div>' );
@@ -606,6 +715,9 @@ jPost.addSliceTables = function( name ) {
 			}
 		}
 	);
+
+        var tag = '<button onclick="jPost.removeDatasetsFromSlice( ' +  "'" + slice.name + "'" + ')">Remove Datasets</button>';
+        $( '#slice-dataset-' + label + '-panel' ).append( tag );
 
 	$( '#slice-' + label + '-tab' ).append( '<li class="nav-item"><a class="nav-link bg-primary" href="#slice-protein-' + label + '-panel" data-toggle="tab">Protein</a></li>' );
 	$( '#slice-' + label + '-panels' ).append( '<div class="tab-pane fade table-panel" id="slice-protein-' + label + '-panel"></div>' );
@@ -640,13 +752,19 @@ jPost.addSliceTables = function( name ) {
 			}
 		}
 	);
+        
 
-	$( '#slice-' + label + '-panels' ).append( '<div id="slice-' + label + '-stanza">hogehoeg</div>' );
+	$( '#slice-' + label + '-panels' ).append( '<div id="slice-' + label + '-stanza"></div>' );
 
-	var tag = ' <button onclick="jPost.exportSlice( ' + "'" + name + "'" + ' )" class="btn">Export Slice</button>'
-			+ ' <button onclick="jPost.openRenameDialog( ' + "'" + name + "'" + ' )" class="btn">Rename Slice</button>'
-			+ ' <button onclick="jPost.deleteSlice( ' + "'" + name + "'" + ' )" class="btn">Delete Slice</button>';
-	$( '#slice-' + label + '-panels' ).append( tag );
+        $( '#slice-' + label + '-stanza' ).append( '<h3>Chromosome Info.</h3>' );
+        $( '#slice-' + label + '-stanza' ).append( '<div id="slice-' + label + '-stanza-chromosome"></div>' );
+        $( '#slice-' + label + '-stanza' ).append( '<h3>Protein Evidence</h3>' );
+        $( '#slice-' + label + '-stanza' ).append( '<div id="slice-' + label + '-stanza-protein"></div>' );
+
+	tag = ' <button onclick="jPost.exportSlice( ' + "'" + name + "'" + ' )" class="glyphicon glyphicon-export" data-toggle="tooltip" title="Export Slice"></button>'
+			+ ' <button onclick="jPost.openRenameDialog( ' + "'" + name + "'" + ' )" class="glyphicon glyphicon-edit" data-toggle="tooltip" title="Rename Slice"></button>'
+			+ ' <button onclick="jPost.deleteSlice( ' + "'" + name + "'" + ' )" class="glyphicon glyphicon-trash" data-toggle="tooltip" title="Delete Slice"></button>';
+	$( '#slice-' + label + '-buttons' ).append( tag );
 }
 
 // get slice
@@ -684,8 +802,40 @@ jPost.addDatasetsToSlice = function() {
 	}
 }
 
+// remove datasets from slice
+jPost.removeDatasetsFromSlice = function( name ) {
+    var slice = jPost.getSlice( name );
+    var array = jPost.getCheckedArray( 'check-dataset-slice-dataset-' + slice.label );
+
+    if( array.length == 0 ) {
+        alert( "No datasets are not selected. Please check one or more datasets." );
+                return;
+    }
+
+    if( !confirm( 'Are you sure to remove selected datasets from the slice?' ) ) {
+        return;
+    }
+
+    array.forEach(
+        function( element ) {
+            var index = slice.dataset.indexOf( element );
+            if( index >= 0 ) {
+                slice.dataset.splice( index, 1 );
+            }
+        }
+    );
+
+    jPost.refreshSlices( name );
+} 
+
 // update slice selection
 jPost.updateSliceSelection = function( index ) {
+        if( index < 0 ) {
+            if( jPost.slices.length > 0 ) {
+                index = 0;
+            }
+        }
+
 	if( index < 0 ) {
 		$( '#select-slice' ).html( '<option value="" selected>+ (New Slice)</option>' );
 	}
@@ -729,15 +879,37 @@ jPost.onCloseSliceSelectionDialog = function() {
 jPost.setSliceInfo = function( slice, datasets ) {
 	jPost.getFilterParameters( slice );
 
+        var speciesArray = [];
+
+        var fun = function( element ) {
+            var species = jPost.species[ element ];
+            if( speciesArray.indexOf( species ) < 0 ) {
+                speciesArray.push( species );
+            }
+        }
+
+        slice.dataset.forEach( fun );
+        datasets.forEach( fun );
+
+        if( speciesArray.length > 1 ) {
+            var message = 'Datasets you selected have two or more species.\n';
+            message = message + '[' + speciesArray.join( ',' ) + ']\n\n';
+            message = message + 'Are you sure to continue?';
+
+            if( !confirm( message ) ) {
+                return;
+            }
+        } 
+
 	datasets.forEach(
 		function( dataset ) {
-			if( slice.dataset.indexOf( dataset ) < 0 ) {
+			if( slice.dataset.indexOf( dataset ) < 1 ) {
 				slice.dataset.push( dataset );
 			}
 		}
 	);
 
-	jPost.updateTables( slice.name );
+        jPost.refreshSlices( slice.name );
 	jPost.saveSlices();
 }
 
@@ -755,7 +927,9 @@ jPost.deleteSlice = function( name ) {
 			jPost.slices.splice( index, 1 );
 		}
 
+     	        jPost.updateSliceSelection( -1 );
 		jPost.refreshSlices( -1 );
+                jPost.saveSlices();
 	}
 }
 
@@ -774,7 +948,7 @@ jPost.compareSlices = function() {
 	if( slice1 == null || slice2 == null ) {
 		return;
 	}
-	var parameters = 'stanza=group_comp&service=tsv1&method=sc&valid=eb&dataset1=' + encodeURIComponent( slice1.dataset.join( ' ' ) )
+	var parameters = 'stanza=group_comp&service=ts&method=sc&valid=eb&dataset1=' + encodeURIComponent( slice1.dataset.join( ' ' ) )
 	+ '&dataset2=' + encodeURIComponent( slice2.dataset.join( ' ' ) );
 var url = 'load_stanza.php?' + parameters;
 $( '#comparison-result' ).load( url );
@@ -794,9 +968,9 @@ jPost.openDataset = function( datasetId, category ) {
 	if( slice != null ) {
 		parameters = parameters + '&slice=' + category;
 	}
-	var url = 'dataset.php?' + parameters;
+	var url = 'index.html?' + parameters;
 
-	window.open( url );
+	window.location.href = url;
 }
 
 //open protein
@@ -806,8 +980,8 @@ jPost.openProtein = function( proteinId, category ) {
 	if( slice != null ) {
 		parameters = parameters + '&slice=' + category + '&dataset=' + encodeURIComponent( slice.dataset.join( ' ' ) );
 	}
-	var url = 'protein.php?' + parameters;
-	window.open( url );
+	var url = 'index.html?' + parameters;
+	window.location.href = url;
 }
 
 //open peptide
@@ -817,8 +991,8 @@ jPost.openPeptide = function( peptideId, category ) {
 	if( slice != null ) {
 		parameters = parameters + '&slice=' + category + '&dataset=' + encodeURIComponent( slice.dataset.join( ' ' ) );
 	}
-	var url = 'peptide.php?' + parameters;
-	window.open( url );
+	var url = 'index.html?' + parameters;
+	window.location.href = url;
 }
 
 // export slice
@@ -879,6 +1053,7 @@ jPost.renameSlice = function() {
 
 	slice = jPost.getSlice( oldName );
 	slice.name = newName;
+        slice.label = jPost.getLabel( newName );
 	$( '#dialog-rename-slice' ).modal( 'hide' );
 
 	jPost.updateSliceSelection( -1 );
@@ -889,3 +1064,42 @@ jPost.renameSlice = function() {
 jPost.importSlices = function() {
 	 $( '#upload_slices' ).click();
 }
+
+// show help
+jPost.showHelp = function() {
+    window.open( 'help/' );
+}
+
+// load slice stanza
+jPost.loadSliceStanza = function( name ) {
+    if( jPost.loaded.indexOf( name ) >= 0 ) {
+        return;
+    }
+
+    var slice = jPost.getSlice( name );
+    if( slice == null ) {
+        return;
+    }
+
+    if( $( '#panel-slices' ).is( ':hidden' ) ) {
+        return;
+    }
+
+    var label = slice.label;
+
+    var datasets = encodeURIComponent( slice.dataset.join( ' ' ) );
+    if( datasets == '' ) {
+        datasets = 'dummy';
+    }
+
+    var parameters = 'service=ts&dataset=' + datasets;
+    var url = 'load_stanza.php?stanza=dataset_chromosome&' + parameters;
+
+    $( '#slice-' + label + '-stanza-chromosome' ).load( url );
+
+    var url = 'load_stanza.php?stanza=protein_evidence&' + parameters;
+    $( '#slice-' + label + '-stanza-protein' ).load( url );
+
+    jPost.loaded.push( name );
+}
+

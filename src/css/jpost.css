@@ -9,3 +9,11 @@
 .table-panel {
 	padding: 25px;
 }
+
+.btn {
+    text-transform: none !important;
+}
+
+.search-control {
+    width: 300px !important;
+}

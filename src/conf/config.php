@@ -11,7 +11,7 @@ class Config {
 
 
 	// endpoint
-	public static $SPARQL_ENDPOINT = 'http://db-dev.jpostdb.org/proxy/sparql';
+	public static $SPARQL_ENDPOINT = 'http://localhost/proxy/sparql';
 }
 
 ?>

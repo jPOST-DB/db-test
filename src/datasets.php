@@ -55,15 +55,6 @@ if( $method == 'table' ) {
 	$column->setAlign( 'left' );
 	$column->setWidth( 200 );
 	$result->addColumn( $column );
-
-	$column = new ColumnInfo();
-	$column->setName( 'project_date' );
-	$column->setTitle( 'Project Date' );
-	$column->setSortable( true );
-	$column->setSearchable( false );
-	$column->setAlign( 'left' );
-	$column->setWidth( 100 );
-	$result->addColumn( $column );
 }
 else if( $method == 'list' ) {
 	$draw = $_REQUEST[ 'draw' ];

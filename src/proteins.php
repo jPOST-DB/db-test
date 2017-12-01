@@ -18,7 +18,7 @@ if( $method == 'table' ) {
 	$result->setTitle( 'Protein' );
 	$result->setUrl( basename( __FILE__ ) );
 
-	if( $category != '<details>') {
+	if( $category == '') {
 		$column = new ColumnInfo();
 		$column->setName( 'checkbox' );
 		$column->setTitle(  "<input type=\"checkbox\" id=\"check-protein-$name\" onchange=\"jPost.toggleCheckboxes('check-protein-$name')\">" );
@@ -31,7 +31,7 @@ if( $method == 'table' ) {
 
 	$column = new ColumnInfo();
 	$column->setName( 'full_name' );
-	$column->setTitle( 'Full Name' );
+	$column->setTitle( 'Protein Name' );
 	$column->setSortable( true );
 	$column->setSearchable( true );
 	$column->setAlign( 'left' );
@@ -40,7 +40,7 @@ if( $method == 'table' ) {
 
 	$column = new ColumnInfo();
 	$column->setName( 'mnemonic' );
-	$column->setTitle( 'Mnemonic' );
+	$column->setTitle( 'ID' );
 	$column->setSortable( true );
 	$column->setSearchable( true );
 	$column->setAlign( 'left' );
@@ -49,7 +49,7 @@ if( $method == 'table' ) {
 
 	$column = new ColumnInfo();
 	$column->setName( 'protein_id' );
-	$column->setTitle( 'Uniprot ID' );
+	$column->setTitle( 'Accession' );
 	$column->setSortable( true );
 	$column->setSearchable( true );
 	$column->setAlign( 'left' );

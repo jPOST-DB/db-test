@@ -1,71 +1,101 @@
-<div class="panel panel-primary">
+<div class="panel panel-primary" style="min-width: 800px; margin: 0 auto;">
   <div class="panel-heading">
     <h4 class="panel-title">
-      <a data-toggle="collapse" href="#search-form" id="search-filter-title">Filters</a>
+      <a data-toggle="collapse" href="#search-form" id="search-filter-title" style="text-decoration: none;">Filters <span id="filter-header-icon" class="glyphicon glyphicon-triangle-top">&nbsp;</span></a>
     </h4>
   </div>
-  <div class="panel-body collapse.show" id="search-form">
-    <form onsubmit="jPost.search(); return false;">
-      <div class="form-group">
-        <label for="search-form-species">Species</label>
-        <select id="species" name="species[]" class="form-control" size="1" style="display: none;" multiple>
-        </select>
+  <div class="panel-body collapse.show" style="width: 800px" id="search-form">
+    <form onsubmit="jPost.search(); return false;" style="float: left; width: calc( 100% - 300px ); margin: 10px;">
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-species">Species</label>
+        <div class="col-sm-10">
+          <select id="species" name="species[]" class="form-control search-control" size="1" style="display: none;" multiple>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-tissue">Tissue</label>
-        <select id="tissue" name="tissue[]" class="form-control" size="1" style="display: none;" multiple>
-        </select>
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-tissue">Tissue</label>
+        <div class="col-sm-10">
+          <select id="tissue" name="tissue[]" class="form-control search-control" size="1" style="display: none;" multiple>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-disease">Disease</label>
-        <select id="disease" name="disease[]" class="form-control" size="1" style="display: none;" multiple>
-        </select>
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-disease">Disease</label>
+        <div class="col-sm-10">
+          <select id="disease" name="disease[]" class="form-control search-control" size="1" style="display: none;" multiple>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-disease">Cell Type</label>
-        <select id="celltype" name="celltype[]" class="form-control" size="1" style="display: none;" multiple>
-        </select>
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-disease">Cell Type</label>
+        <div class="col-sm-10">
+          <select id="celltype" name="celltype[]" class="form-control search-control" size="1" style="display: none;" multiple>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-mod">Modification</label>
-        <select id="modification" name="modification[]" class="form-control" size="1" style="display: none;" multiple>
-        </select>
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-mod">Modification</label>
+        <div class="col-sm-10">
+          <select id="modification" name="modification[]" class="form-control search-control" size="1" style="display: none;" multiple>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-instrument">Instrument</label>
-        <select id="instrument" name="instrument[]" class="form-control" size="1" style="display: none;" multiple>
-        </select>
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-instrument">Instrument</label>
+        <div class="col-sm-10">
+          <select id="instrument" name="instrument[]" class="form-control search-control" size="1" style="display: none;" multiple>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-instmode">Instrument Mode</label>
-        <select id="instrumentMode" name="instrumentMode[]" class="form-control" size="1" style="display: none;" multiple>
-        </select>
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-instmode">Instrument Mode</label>
+        <div class="col-sm-10">
+          <select id="instrumentMode" name="instrumentMode[]" class="form-control search-control" size="1" style="display: none;" multiple>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-keyword">Dataset Keyword</label>
-        <input id="datasetKeywords" name="datasetKeywords" class="form-control">
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-keyword">Dataset Keyword</label>
+        <div class="col-sm-10">
+          <input id="datasetKeywords" name="datasetKeywords" class="form-control search-control" style="border: 1px solid #aaaaaa; border-radius: 4px;">
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-keyword">Protein Keyword</label>
-        <input id="proteinKeywords" name="proteinKeywords" class="form-control">
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-keyword">Protein Keyword</label>
+        <div class="col-sm-10">
+          <input id="proteinKeywords" name="proteinKeywords" class="form-control search-control" style="border: 1px solid #aaaaaa; border-radius: 4px;">
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-excluded-datasets">Excluded Datasets</label>
-        <select id="excludedDataset" name="excludedDataset[]" class="form-control" size="1" style="display: none;" multiple>
-        </select>
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-excluded-datasets">Excluded Datasets</label>
+        <div class="col-sm-10">
+          <select id="excludedDataset" name="excludedDataset[]" class="form-control search-control" size="1" style="display: none;" multiple>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="search-form-excluded-proteins">Excluded Proteins</label>
-        <select id="excludedProtein" name="excludedProtein[]" class="form-control" size="1" style="display: none;" multiple>
-        </select>
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="search-form-excluded-proteins">Excluded Proteins</label>
+        <div class="col-sm-10">
+          <select id="excludedProtein" name="excludedProtein[]" class="form-control search-control" size="1" style="display: none;" multiple>
+          </select>
+        </div>
       </div>
     </form>
+    <div style="float: left;">
+      <div id="species-chart" style="margin: 20px;"></div>
+      <div id="disease-chart" style="margin: 20px;"></div>
+    </div>
+    <div style="clear: both;"></div>
+  </div>
+</div>
   </div>
 </div>
 
 <div>
-  <div id="species-chart"></div>
-  <div id="disease-chart"></div>
+  <div id="species-chart" style="float: left; margin: 10px;"></div>
+  <div id="disease-chart" style="float: left; margin: 10px;"></div>
+  <div style="clear: both;"></div>
 </div>
 
 <ul class="nav nav-tabs">
@@ -111,11 +141,22 @@
         }
     );
 
-	var parameters = 'stanza=database_pie_chart&type=species';
+	var parameters = 'stanza=database_pie_chart&service=ts&type=species';
 	var url = 'load_stanza.php?' + parameters;
 	$( '#species-chart' ).load( url );
 
-	parameters = 'stanza=database_pie_chart&type=disease';
+	parameters = 'stanza=database_pie_chart&service=ts&type=disease';
 	url = 'load_stanza.php?' + parameters;
 	$( '#disease-chart' ).load( url );
+
+    $( '#search-form' ).on(
+        {
+            'show.bs.collapse': function() {
+                $( '#filter-header-icon' ).removeClass( 'glyphicon-triangle-bottom' ).addClass( 'glyphicon-triangle-top' );
+            },
+            'hide.bs.collapse': function() {
+                $( '#filter-header-icon' ).removeClass( 'glyphicon-triangle-top' ).addClass( 'glyphicon-triangle-bottom' );
+            }
+        }
+    );
 </script>

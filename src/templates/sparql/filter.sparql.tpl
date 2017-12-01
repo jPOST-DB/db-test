@@ -98,8 +98,18 @@ SELECT {$columns} WHERE {
 {/if}
 
 {if isset( $disease )}
-    ?sample jpo:disease/rdfs:seeAlso*/rdfs:label ?disease_label .
-    filter( str( ?disease_label ) in ( {$disease} ) ) .
+{if $disease == '"non disease"'}
+   ?sample a jpo:Sample .
+   MINUS { ?sample jpo:disease ?disease . }
+{else}
+   OPTIONAL {
+     ?sample jpo:disease/rdfs:seeAlso*/rdfs:subClassOf*/rdfs:label ?disease_label
+   }
+   OPTIONAL {
+     ?sample jpo:disease ?disease_label_2 .
+   }
+   filter( str( ?disease_label ) in ( {$disease} ) || str( ?disease_label_2 ) in ( {$disease} ) ) .
+{/if}
 {/if}
 
 {if isset( $celltype )}

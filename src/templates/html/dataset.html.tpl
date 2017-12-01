@@ -1,22 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>{$dataset_id} - jPOST</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/jquery.dataTables.min.css" rel="stylesheet">
-    <script src="js/jquery-3.1.1.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.dataTables.min.js"></script>
-    <script src="js/stanza.js"></script>
-    <script src="js/jpost.js"></script>
-{if isset( $dataset)}
-    <script>
-        jPost.addSlice( '{$slice}', '{$dataset}' );
-    </script>
-{/if}
-  </head>
-  <body>
     <div class="container">
       <h2>Dataset: {$dataset_id}</h2>
       <table class="table table-striped">
@@ -57,17 +38,17 @@
       </ul>
       <div class="tab-content">
         <div class="tab-pane fade in table-panel active" id="protein-table-tab">
-          <table id="table-protein" class="display"></table>
+          <table id="table-protein-detail" class="display"></table>
         </div>
         <div class="tab-pane fade table-panel" id="peptide-table-tab">
-          <table id="table-peptide" class="display"></table>
+          <table id="table-peptide-detail" class="display"></table>
         </div>
       </div>
     </div>
 
 <script>
 	jPost.createDbTable(
-		'protein',
+		'protein-detail',
 		'{$slice}>',
 		'proteins.php',
 		function( params ) {
@@ -75,7 +56,7 @@
 		}
 	);
 	jPost.createDbTable(
-		'peptide',
+		'peptide-detail',
 		'{$slice}',
 		'peptides.php',
 		function( params ) {
@@ -83,18 +64,15 @@
 		}
 	);
 
-	  var parameters = 'stanza=kegg_global_map&service=tsv1&dataset={$dataset_id}';
+	  var parameters = 'stanza=kegg_global_map&service=ts&dataset={$dataset_id}';
 	  var url = 'load_stanza.php?' + parameters;
 	  $( '#kegg_global_map' ).load( url );
 
-	  var parameters = 'stanza=dataset_chromosome&service=tsv1&dataset={$dataset_id}';
+	  var parameters = 'stanza=dataset_chromosome&service=ts&dataset={$dataset_id}';
 	  var url = 'load_stanza.php?' + parameters;
 	  $( '#dataset_chromosome' ).load( url );
 
-	  var parameters = 'stanza=protein_evidence&service=tsv1&dataset={$dataset_id}';
+	  var parameters = 'stanza=protein_evidence&service=ts&dataset={$dataset_id}';
 	  var url = 'load_stanza.php?' + parameters;
 	  $( '#protein_evidence' ).load( url );
 </script>
-
-  </body>
-</html>
